@@ -3,7 +3,6 @@ To achieve alignment of Bendsensor(BS) and Forcesensor(FS) data, a Bidirectional
 
 During the measurements of the data, the participants alternated between using their smartphone to collect taps, and using a 'box' which measured FS data. The BS measurements were collected throughout the whole measurement process. Thus, for each participant, the data had to be separated, because only the sections which contained BS and FS data were used during training.
 
-[Click here for the code](../src/alignment/moving_averages)
 
 # Data preparation
 The data preparation is performed in Matlab R2019b.
