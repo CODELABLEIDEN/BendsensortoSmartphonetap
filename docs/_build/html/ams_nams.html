@@ -1,0 +1,608 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attributable and Non attributable movements identification &#8212; Non attribute movement and EEG 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="EEG analysis" href="EEG_analysis.html" />
+    <link rel="prev" title="Bendsensor to Tap models" href="bs_to_tap.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="EEG_analysis.html" title="EEG analysis"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bs_to_tap.html" title="Bendsensor to Tap models"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Attributable and Non attributable movements identification</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="attributable-and-non-attributable-movements-identification">
+<h1>Attributable and Non attributable movements identification<a class="headerlink" href="#attributable-and-non-attributable-movements-identification" title="Permalink to this headline">¶</a></h1>
+<p>Attributable movements (AMs) are movements that result in clear and instantaneous outcomes. Other types of movements cannot be simply attributed to any clear outcome or goal; we refer to them as non-attributable movements (NAMs). This section is on the identification of NAMs and AMS. Furthermore, to understand these movements different parameters are extracted and these are explained in this section as well.</p>
+<p>NAMs and AMs had to be extracted from the continuous <a class="reference internal" href="bs_to_tap.html"><span class="doc">bendsensor to tap model</span></a> predictions. The first step towards this was to threshold the model predictions with the maximum F2 score to exclude noise (See the evaluation section in <a class="reference internal" href="bs_to_tap.html"><span class="doc">bendsensor to tap model</span></a>).</p>
+<p><strong>Attributable movements definition</strong></p>
+<p>AMs were identified, any predicted peak around +/- 100 ms of the smartphone interaction (SI) was considered a prediction of the interaction. 100 ms was chosen because this is the peak width of the model predictions averaged across all participants. Therefore, any prediction of +/- 100 ms around a SI identified an AM.</p>
+<p><strong>Non Attributable movements definition</strong></p>
+<p>NAMs were identified with a model prediction where there was no SI in the vicinity. This was defined as any peak of a model prediction further than +/- 1000 ms from the interaction. 1000 ms was chosen because the movement to generate an interaction usually occurred within that duration.</p>
+<img alt="_images/ams_nams.svg" src="_images/ams_nams.svg" /><p>We distinguished between AMs and NAMs based on the model predictions of the deltas and those based on the model predictions of the integrals.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Everything is saved in the <a class="reference external" href="https://eeglab.org/tutorials/ConceptsGuide/Data_Structures.html">EEGLAB</a> data format. The data is timelocked around the event and epoched this is then used to identify the neural correlates of these events. For this reason some functions in this section require functions from <a class="reference internal" href="EEG_analysis.html"><span class="doc">EEG analysis</span></a> section. Specifically the EEG preprocessing functions.</p>
+</div>
+<div class="section" id="ams-and-nams-parameters">
+<h2>AMs and NAMs parameters<a class="headerlink" href="#ams-and-nams-parameters" title="Permalink to this headline">¶</a></h2>
+<p>We also calculate a few parameters for each event. The events are either an AM, NAM as identified from the bendsensor to tap model predictions. These predictions are basically continuous values with peaks being the predicted events.</p>
+<ul class="simple">
+<li><p>Maximum peak value: <em>pks</em></p></li>
+<li><p>Distance to the nearest smartphone interaction (tap) after the event: <em>distance_tap_after_event</em></p></li>
+<li><p>Distance to the nearest smartphone interaction (tap) before the event: <em>distance_tap_before_event</em></p></li>
+<li><p>The model prediction value at the location of the tap after the event: <em>pks_after_tap</em></p></li>
+<li><p>The model prediction value at the location of the tap before the event: <em>pks_before_tap</em></p></li>
+<li><p>Distance to the nearest model predicted peak (larger the set threshold of the optimal f2 score) after event: <em>distance_pred_after_event</em></p></li>
+<li><p>Distance to the nearest model predicted peak (larger the set threshold of the optimal f2 score) before the event: <em>distance_pred_before_event</em></p></li>
+<li><p>Maximum peak value after event: <em>pks_pred_after</em></p></li>
+<li><p>Maximum peak value before event: <em>pks_pred_before</em></p></li>
+<li><p>The type of event the nearest model prediction (either AM, NAM or None) <em>types_after_event</em></p></li>
+<li><p>The type of event the nearest model prediction (either AM, NAM or None) <em>types_before_event</em></p></li>
+<li><p>Boolean 1 indicating the type of the event <em>NAMs_i, NAMs_d, AMs_i, AMs_d, pt</em></p></li>
+</ul>
+<img alt="_images/ams_nams_parameters.svg" src="_images/ams_nams_parameters.svg" /><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The smartphone interaction (SI) can also be used as an event in that case it is called <em>pt</em>. The only difference is the <a class="reference external" href="https://eeglab.org/tutorials/ConceptsGuide/Data_Structures.html#eegepoch">eventlatency</a> is at the location of the tap and not the model predicted peak.</p>
+</div>
+</div>
+<div class="section" id="directory-structure">
+<h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+--</span> <span class="n">ams_nams</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">features</span> <span class="o">--&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">find</span> <span class="n">events</span> <span class="p">(</span><span class="n">ams</span><span class="p">,</span> <span class="n">nams</span><span class="p">,</span> <span class="n">smartphone</span> <span class="n">interactions</span><span class="p">(</span><span class="n">pt</span><span class="p">))</span> <span class="ow">and</span> <span class="n">epoch</span> <span class="n">eeg</span> <span class="n">data</span> <span class="n">around</span> <span class="n">them</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">add_events</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">adds</span> <span class="n">events</span> <span class="n">to</span> <span class="n">the</span> <span class="n">eeglab</span> <span class="n">struct</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">calculate_date_differences</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">used</span> <span class="n">to</span> <span class="n">identify</span> <span class="n">second</span> <span class="n">curfew</span> <span class="n">files</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">find_ams_n_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">finds</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">model</span> <span class="n">predictions</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">find_nearest_distances</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">finds</span> <span class="n">nearest</span> <span class="p">(</span><span class="mi">1</span> <span class="n">before</span> <span class="ow">and</span> <span class="mi">1</span> <span class="n">after</span><span class="p">)</span> <span class="n">events</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">participants</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">find_nearest</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">finds</span> <span class="n">nearest</span> <span class="p">(</span><span class="mi">1</span> <span class="n">before</span> <span class="ow">and</span> <span class="mi">1</span> <span class="n">after</span><span class="p">)</span> <span class="n">events</span> <span class="k">for</span> <span class="n">one</span> <span class="n">participant</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">set_parameters</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">calculates</span> <span class="n">other</span> <span class="n">parameters</span> <span class="n">of</span> <span class="n">the</span> <span class="n">event</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">pred_events</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">this</span> <span class="n">calls</span> <span class="nb">all</span> <span class="n">other</span> <span class="n">functions</span> <span class="ow">and</span> <span class="n">epochs</span> <span class="n">the</span> <span class="n">eeg</span> <span class="n">data</span> <span class="n">around</span> <span class="n">the</span> <span class="n">events</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">result_plotting</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">analyze_bs_to_tap_mod_results</span><span class="o">.</span><span class="n">py</span> <span class="o">--&gt;</span> <span class="n">analyze</span> <span class="n">model</span> <span class="n">predictions</span> <span class="ow">and</span> <span class="n">generated</span> <span class="n">f2</span> <span class="n">scores</span> <span class="n">plot</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">erp_plots</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plots</span> <span class="n">ERP</span> <span class="n">results</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">erp_with_CI</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plots</span> <span class="n">ERP</span> <span class="k">with</span> <span class="n">confidence</span> <span class="n">intervals</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">generate_all_epochs</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">prepares</span> <span class="n">data</span> <span class="k">for</span> <span class="n">generation</span> <span class="n">of</span> <span class="n">figure</span> <span class="n">D</span> <span class="ow">and</span> <span class="n">E</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">generate_bs_to_tap_model_preds</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">prepares</span> <span class="n">data</span> <span class="k">for</span> <span class="n">generation</span> <span class="n">of</span> <span class="n">figure</span> <span class="n">B</span> <span class="ow">and</span> <span class="n">C</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">get_ams_nam</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">get</span> <span class="n">the</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">participant</span> <span class="ow">in</span> <span class="n">right</span> <span class="nb">format</span> <span class="k">for</span> <span class="n">plotting</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_bs_shape_tl_ams_nams</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">average</span> <span class="n">bendsensor</span> <span class="n">timelocked</span> <span class="n">to</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">B</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_density_am_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">nearest</span> <span class="n">events</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">D</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_freq_ams_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">frequencies</span> <span class="n">of</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">C</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_inter_event_intervals</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">inter</span> <span class="n">event</span> <span class="n">intervals</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">E</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_pred_tl_ams_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span>  <span class="n">plot</span> <span class="n">model</span> <span class="n">predictions</span> <span class="n">timelocked</span> <span class="n">around</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Supplementary</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-ams_nams.features">
+<span id="features"></span><h3>Features<a class="headerlink" href="#module-ams_nams.features" title="Permalink to this headline">¶</a></h3>
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.features.add_events">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.features.</span></span><span class="sig-name descname"><span class="pre">add_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">data</span></em>, <em class="sig-param"><span class="pre">num</span></em>, <em class="sig-param"><span class="pre">type</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.features.add_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds identified events to EEG.event and EEG.urevent
+In this case the events are predicted peak locations or tap locations</p>
+<p><strong>Usage:</strong> [EEG] = add_events(EEG,data,num,type)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct</p></li>
+<li><p>data = the event indices</p></li>
+<li><p>num = number of events</p></li>
+<li><p>type = char array (‘ ‘) denoting event type
+(phone taps are denoted as pt and predictions as pred_d for deltas and pred_i for integrals)</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct with added EEG events</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.features.calculate_date_differences">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.features.</span></span><span class="sig-name descname"><span class="pre">calculate_date_differences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">eeg_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.features.calculate_date_differences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the difference between all dates and smallest date
+This function is used to ignore the second file of curfew
+participants(ignore the data after curfew)</p>
+<p><strong>Usage:</strong> [eeg_name] = calculate_date_differences(eeg_name)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>eeg_name = loaded status.mat for one participant</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>eeg_name =  status.mat with new field datediff</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.features.find_ams_n_nams">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.features.</span></span><span class="sig-name descname"><span class="pre">find_ams_n_nams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">taps</span></em>, <em class="sig-param"><span class="pre">params</span></em>, <em class="sig-param"><span class="pre">precision_am</span></em>, <em class="sig-param"><span class="pre">vicinity</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.features.find_ams_n_nams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the position of ams and nams</p>
+<p><strong>Usage:</strong> [s] = find_ams_n_nams(taps, params, precision_am, vicinity)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>taps = position of real taps</p></li>
+<li><p>params = cell with the results of findpeaks, peak local maxima and location</p></li>
+<li><p>precision_am = int which denotes the distance a tap can be from the
+position of a predicted tap to define an AM– AMs are any prediction where
+predicted local maxima is within 100 ms of real tap</p></li>
+<li><p>vicinity = int which denotes the distance a tap can be from the
+position of a predicted tap to define a NAM– NAMs are any prediction
+further than 1000 ms from a real tap</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>s = struct with position of AMs and NAMs</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.features.find_nearest">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.features.</span></span><span class="sig-name descname"><span class="pre">find_nearest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">find_value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.features.find_nearest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find nearest predicted peak before and after one tap or prediction</p>
+<p><strong>Usage:</strong> [found_max, found_max] = find_nearest(x,find_value)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>x = array with positions of events</p></li>
+<li><p>find_value = the position of current tap or prediction</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>found_max = Local maxima of the nearest prediction after event</p></li>
+<li><p>found_max = Local minima of the nearest prediction before event</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.features.find_nearest_distances">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.features.</span></span><span class="sig-name descname"><span class="pre">find_nearest_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">all_2_find</span></em>, <em class="sig-param"><span class="pre">latencies</span></em>, <em class="sig-param"><span class="pre">taps</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.features.find_nearest_distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find nearest predicted peak before and after all taps or predictions</p>
+<p><strong>Usage:</strong> [distance_maxs, distance_mins, maxs, mins, types] = find_nearest_distances(taps,latencies)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>all_2_find = position of events (either taps or predictions)</p></li>
+<li><p>latencies = latencies of all the predicted events</p></li>
+<li><p>taps = position of taps</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>distance_maxs = Position (index) of the nearest predicted peaks after event</p></li>
+<li><p>distance_mins = Position (index) of the nearest predicted peaks  before event</p></li>
+<li><p>maxs = Local maxima of the nearest predicted peaks after event</p></li>
+<li><p>mins = Local minima of the nearest predicted peaks before event</p></li>
+<li><dl class="simple">
+<dt>types = cell array types of nearest events</dt><dd><ul>
+<li><p>types{1,i} = type of nearest event before current event;</p></li>
+<li><p>types{2,i} = type of nearest event after current event;</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Requires:</dt><dd><ul class="simple">
+<li><p>find_nearest</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.features.pred_events">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.features.</span></span><span class="sig-name descname"><span class="pre">pred_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">event_name_d</span></em>, <em class="sig-param"><span class="pre">event_name_i</span></em>, <em class="sig-param"><span class="pre">epoch_window</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.features.pred_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get EEG in right format; epoched with all GLM parameters</p>
+<p><strong>Usage:</strong> [EEG_integrals, EEG_deltas,indices_integrals] = pred_events(EEG, event_name_d, event_name_i)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct</p></li>
+<li><p>event_name_d: name of events derived from delta features to calculate
+the parameters from (as set by add_events() all options are AMs_d, NAMs_d and pt)</p></li>
+<li><p>event_name_i: name of events derived from delta features to calculate
+the parameters from (as set by add_events() all options are AMs_i, NAMs_i and pt)</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>EEG_integrals =  processed EEG struct with parameters from integral predictions</p></li>
+<li><p>EEG_deltas =  processed EEG struct with parameters from delta predictions</p></li>
+<li><p>indices_integrals = The indices of all integral events</p></li>
+</ul>
+</dd>
+<dt>Requires:</dt><dd><ul class="simple">
+<li><p>find_ams_n_nams.m</p></li>
+<li><p>add_events.m</p></li>
+<li><p>set_parameters.m</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.features.set_parameters">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.features.</span></span><span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">feature</span></em>, <em class="sig-param"><span class="pre">params</span></em>, <em class="sig-param"><span class="pre">all_eventtypes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.features.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the features used for GLM
+<strong>Usage:</strong> [EEG] = set_parameters(EEG, feature, params, all_eventtypes)</p>
+<dl>
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct</p></li>
+<li><p>feature = cell with the feature name (either delta and integral)</p></li>
+<li><p>params = struct with results from findpeaks, peak local maxima,</p></li>
+</ul>
+<p>width, promincence and location
+- all_eventtypes = name of events to calculate the parameters from (as
+set by add_events() all options are AMs (AMs_d AMs_i) and NAMs (NAMs_d NAMs_i)
+from both integral and delta feature and phone touches (pt)</p>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct with parameters in EEG.epoch</p></li>
+</ul>
+</dd>
+<dt>Requires:</dt><dd><ul class="simple">
+<li><p>find_nearest_distances.m</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ams_nams.result_plotting_figure_1">
+<span id="result-plotting"></span><h3>Result plotting<a class="headerlink" href="#module-ams_nams.result_plotting_figure_1" title="Permalink to this headline">¶</a></h3>
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.generate_all_epochs">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">generate_all_epochs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG1_i</span></em>, <em class="sig-param"><span class="pre">EEG1_d</span></em>, <em class="sig-param"><span class="pre">participant</span></em>, <em class="sig-param"><span class="pre">indx</span></em>, <em class="sig-param"><span class="pre">all_data</span></em>, <em class="sig-param"><span class="pre">~</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.generate_all_epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a placeholder cell with the datasets of all participants for plotting of results</p>
+<p><strong>Usage:</strong> [all_data] = generate_bs_to_tap_model_preds(EEG1_i, EEG1_d,participant, indx, all_data)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG1_i = EEG struct with epoched integral data</p></li>
+<li><p>EEG1_d = EEG struct with epoched deltas data</p></li>
+<li><p>participant = participant</p></li>
+<li><p>indx = index to place the participant data in cell</p></li>
+<li><p>all_data = cell with the epoched EEG data of other participants</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>all_data = cell placeholder cell with the epoched predictions of one participant</dt><dd><ul>
+<li><p>all_data{indx,1} = participant</p></li>
+<li><p>all_data{indx,2} = epoched data for integrals</p></li>
+<li><p>all_data{indx,3} = epoched data for deltas</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.generate_bs_to_tap_model_preds">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">generate_bs_to_tap_model_preds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">path</span></em>, <em class="sig-param"><span class="pre">save_results</span></em>, <em class="sig-param"><span class="pre">save_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.generate_bs_to_tap_model_preds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a placeholder cell with the datasets of all participants for plotting of results</p>
+<dl class="simple">
+<dt><strong>Usage:</strong></dt><dd><ul class="simple">
+<li><p>[bs_to_tap_predictions] = generate_bs_to_tap_model_preds(path,save_results, save_path)</p></li>
+<li><p>[bs_to_tap_predictions] = generate_bs_to_tap_model_preds(path)</p></li>
+<li><p>[bs_to_tap_predictions] = generate_bs_to_tap_model_preds(path, save_results)</p></li>
+</ul>
+</dd>
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>path = path to data with bs_to_tap model predictions</p></li>
+<li><p>save_results = bool optional – 0 not to save placeholder and 1 to save (default 1)</p></li>
+<li><p>save_path = char optional – path to save the cell (default path)</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>bs_to_tap_predictions = cell placeholder cell with the bs_to_tap data of all participants</dt><dd><ul>
+<li><p>bs_to_tap_predictions{index,1} = participant;</p></li>
+<li><p>bs_to_tap_predictions{index,2} = bendsensor data;</p></li>
+<li><p>bs_to_tap_predictions{index,3} = delta predictions;</p></li>
+<li><p>bs_to_tap_predictions{index,4} = integral predictions;</p></li>
+<li><p>bs_to_tap_predictions{index,5} = smartphone interactions;</p></li>
+<li><p>bs_to_tap_predictions{index,6} = optimal threshold integrals;</p></li>
+<li><p>bs_to_tap_predictions{index,7} = optimal threshold deltas;</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat script">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.generate_figure1a">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">generate_figure1a</span></span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.generate_figure1a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploratory
+for i=1:20</p>
+<blockquote>
+<div><p>figure;
+plot(EEG.Aligned.BS_to_tap.BS([s_i.NAMs(i)-1000:s_i.NAMs(i)+1000])); 
+hold on 
+xline(2000/2);
+plot(EEG.Aligned.BS_to_tap.integrals([s_i.NAMs(i)-1000:s_i.NAMs(i)+1000])); 
+title(sprintf(‘%d’, i))</p>
+</div></blockquote>
+<p>end</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.get_ams_nam">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">get_ams_nam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">bs_to_tap_predictions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.get_ams_nam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get ams, nams and tap locations for all participants</p>
+<p><strong>Usage:</strong> [s_i,s_d,taps] = get_ams_nam(bs_to_tap_predictions)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>bs_to_tap_predictions = cell placeholder cell with the bs_to_tap data of all participants</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>s_i = struct with ams, nams idexes for integrals</p></li>
+<li><p>s_d = struct with ams, nams idexes for deltas</p></li>
+<li><p>taps = location of smartphone taps</p></li>
+</ul>
+</dd>
+<dt>Requires:</dt><dd><p>find_ams_n_nams.m</p>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.plot_bs_shape_tl_ams_nams">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">plot_bs_shape_tl_ams_nams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">bs_to_tap_predictions</span></em>, <em class="sig-param"><span class="pre">save_results</span></em>, <em class="sig-param"><span class="pre">save_path</span></em>, <em class="sig-param"><span class="pre">data</span></em>, <em class="sig-param"><span class="pre">plotting_options</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.plot_bs_shape_tl_ams_nams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot average bs signal around AMs and NAMs</p>
+<dl class="simple">
+<dt><strong>Usage:</strong></dt><dd><ul class="simple">
+<li><p>plot_bs_shape_tl_ams_nams(bs_to_tap_predictions)</p></li>
+<li><p>plot_bs_shape_tl_ams_nams(… , save_results)</p></li>
+<li><p>plot_bs_shape_tl_ams_nams(… , save_results, save_path)</p></li>
+<li><p>plot_bs_shape_tl_ams_nams(… , ‘s_i’, s_i, ‘s_d’,s_d, ‘taps’, taps)</p></li>
+<li><p>plot_bs_shape_tl_ams_nams(… , ‘plot_integrals’, logical, ‘plot_deltas’, logical, ‘plot_si’,logical)</p></li>
+</ul>
+</dd>
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>bs_to_tap_predictions = cell placeholder cell with the bs_to_tap data of all participants</p></li>
+<li><p>save_results = bool optional – 0 not to save placeholder and 1 to save (default 1)</p></li>
+<li><p>save_path = char optional – path to save figure as pdf (default path)</p></li>
+<li><p>data.s_i = cell array optional – with struct containing ams, nams idices for integrals</p></li>
+<li><p>data.s_d = cell array optional – with struct containing ams, nams idices for deltas</p></li>
+<li><p>data.taps = cell array optional – with struct containing tap idices</p></li>
+<li><p>plotting_options.plot_integrals = logical optional – to plot the bs around integral ams and nams</p></li>
+<li><p>plotting_options.plot_deltas = logical optional – to plot the bs around deltas ams and nams</p></li>
+<li><p>plotting_options.plot_si = logical optional –to plot the bs around taps</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.plot_density_am_nams">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">plot_density_am_nams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">all_epochs</span></em>, <em class="sig-param"><span class="pre">save_results</span></em>, <em class="sig-param"><span class="pre">save_path</span></em>, <em class="sig-param"><span class="pre">options</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.plot_density_am_nams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Figure D: temporal distance probability plot one participant</p>
+<dl class="simple">
+<dt><strong>Usage:</strong></dt><dd><ul class="simple">
+<li><p>plot_density_am_nams(all_epochs)</p></li>
+<li><p>plot_density_am_nams(… , save_results)</p></li>
+<li><p>plot_density_am_nams(… , save_results, save_path)</p></li>
+</ul>
+</dd>
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>all_epochs = cell placeholder cell with the epoched data with all the parameters set of all participants</p></li>
+<li><p>save_results = bool optional – 0 not to save placeholder and 1 to save (default 1)</p></li>
+<li><p>save_path = char optional – path to save figure as pdf (default path)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.plot_freq_ams_nams">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">plot_freq_ams_nams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">bs_to_tap_predictions</span></em>, <em class="sig-param"><span class="pre">save_results</span></em>, <em class="sig-param"><span class="pre">save_path</span></em>, <em class="sig-param"><span class="pre">data</span></em>, <em class="sig-param"><span class="pre">plotting_options</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.plot_freq_ams_nams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot average bs signal around AMs and NAMs</p>
+<dl class="simple">
+<dt><strong>Usage:</strong></dt><dd><ul class="simple">
+<li><p>plot_freq_ams_nams(bs_to_tap_predictions, save_results, save_path)</p></li>
+<li><p>plot_freq_ams_nams(… , save_results)</p></li>
+<li><p>plot_freq_ams_nams(… , save_results, save_path)</p></li>
+<li><p>plot_freq_ams_nams(… , ‘s_i’, s_i, ‘s_d’,s_d, ‘taps’, taps)</p></li>
+<li><p>plot_freq_ams_nams(… , ‘plot_integrals’, logical, ‘plot_deltas’, logical)</p></li>
+</ul>
+</dd>
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>bs_to_tap_predictions = cell placeholder cell with the bs_to_tap data of all participants</p></li>
+<li><p>save_results = bool optional – 0 not to save placeholder and 1 to save (default 1)</p></li>
+<li><p>save_path = char optional – path to save figure as pdf (default path)</p></li>
+<li><p>data.s_i = cell array optional – with struct containing ams, nams idices for integrals</p></li>
+<li><p>data.s_d = cell array optional – with struct containing ams, nams idices for deltas</p></li>
+<li><p>data.taps = cell array optional – with struct containing tap idices</p></li>
+<li><p>plotting_options.plot_integrals = logical optional – to plot the frequencies of integral ams and nams</p></li>
+<li><p>plotting_options.plot_deltas = logical optional – to plot the frequencies of deltas ams and nams</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.plot_inter_event_interval">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">plot_inter_event_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">all_epochs</span></em>, <em class="sig-param"><span class="pre">bs_to_tap_predictions</span></em>, <em class="sig-param"><span class="pre">save_results</span></em>, <em class="sig-param"><span class="pre">save_path</span></em>, <em class="sig-param"><span class="pre">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.plot_inter_event_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Figure D: temporal distance probability plot one participant</p>
+<dl class="simple">
+<dt><strong>Usage:</strong> plot_inter_event_interval(all_epochs)</dt><dd><p>plot_inter_event_interval(… , save_results)
+plot_inter_event_interval(… , save_results, save_path)</p>
+</dd>
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>all_epochs = cell placeholder cell with the epoched data with all the parameters set of all participants</p></li>
+<li><p>save_results = bool optional – 0 not to save placeholder and 1 to save (default 1)</p></li>
+<li><p>save_path = char optional – path to save figure as pdf (default path)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.plot_pred_tl_ams_nams">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">plot_pred_tl_ams_nams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">bs_to_tap_predictions</span></em>, <em class="sig-param"><span class="pre">save_results</span></em>, <em class="sig-param"><span class="pre">save_path</span></em>, <em class="sig-param"><span class="pre">data</span></em>, <em class="sig-param"><span class="pre">plotting_options</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.plot_pred_tl_ams_nams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot average predicted valuesaround nam,am and distriubution of these values</p>
+<dl class="simple">
+<dt><strong>Usage:</strong></dt><dd><ul class="simple">
+<li><p>plot_pred_tl_ams_nams(bs_to_tap_predictions)</p></li>
+<li><p>plot_pred_tl_ams_nams(… , save_results)</p></li>
+<li><p>plot_pred_tl_ams_nams(… , save_results, save_path)</p></li>
+<li><p>plot_pred_tl_ams_nams(… , ‘s_i’, s_i, ‘s_d’,s_d, ‘taps’, taps)</p></li>
+<li><p>plot_pred_tl_ams_nams(… , ‘plot_integrals’, logical, ‘plot_deltas’, logical, ‘plot_si’,logical)</p></li>
+</ul>
+</dd>
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>bs_to_tap_predictions = cell placeholder cell with the bs_to_tap data of all participants</p></li>
+<li><p>save_results = bool optional – 0 not to save placeholder and 1 to save (default 1)</p></li>
+<li><p>save_path = char optional – path to save figure as pdf (default path)</p></li>
+<li><p>data.s_i = cell array optional – with struct containing ams, nams idices for integrals</p></li>
+<li><p>data.s_d = cell array optional – with struct containing ams, nams idices for deltas</p></li>
+<li><p>data.taps = cell array optional – with struct containing tap idices</p></li>
+<li><p>plotting_options.plot_integrals = logical optional – to plot the model predicitons around integral ams and nams</p></li>
+<li><p>plotting_options.plot_deltas = logical optional – to plot the model predicitons around deltas ams and nams</p></li>
+<li><p>plotting_options.plot_si = logical optional –to plot the model predicitons around taps</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat script">
+<dt class="sig sig-object mat" id="ams_nams.result_plotting_figure_1.save_descriptives_csv">
+<span class="sig-prename descclassname"><span class="pre">ams_nams.result_plotting_figure_1.</span></span><span class="sig-name descname"><span class="pre">save_descriptives_csv</span></span><a class="headerlink" href="#ams_nams.result_plotting_figure_1.save_descriptives_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>writecell(c, ‘~/non_attribute_movement_and_EEG/data/figure_1.csv’)</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Attributable and Non attributable movements identification</a><ul>
+<li><a class="reference internal" href="#ams-and-nams-parameters">AMs and NAMs parameters</a></li>
+<li><a class="reference internal" href="#directory-structure">Directory structure</a></li>
+<li><a class="reference internal" href="#code">Code</a><ul>
+<li><a class="reference internal" href="#module-ams_nams.features">Features</a></li>
+<li><a class="reference internal" href="#module-ams_nams.result_plotting_figure_1">Result plotting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bs_to_tap.html"
+                        title="previous chapter">Bendsensor to Tap models</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="EEG_analysis.html"
+                        title="next chapter">EEG analysis</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ams_nams.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="EEG_analysis.html" title="EEG analysis"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bs_to_tap.html" title="Bendsensor to Tap models"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Attributable and Non attributable movements identification</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

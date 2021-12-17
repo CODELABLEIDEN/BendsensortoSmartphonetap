@@ -1,0 +1,390 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Participant selection based on ‘successful’ alignment &#8212; Non attribute movement and EEG 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Participant selection based on ‘successful’ alignment</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="participant-selection-based-on-successful-alignment">
+<h1>Participant selection based on ‘successful’ alignment<a class="headerlink" href="#participant-selection-based-on-successful-alignment" title="Permalink to this headline">¶</a></h1>
+<p>Plots can be found at:
+path = ‘/media/Storage/Common_Data_Storage/test_ruchella/aligned_model_plots’</p>
+<p><strong>Total files:</strong> 211 with both BS and tap data</p>
+<p><strong>Total files after decision tree:</strong> 177 (This is also number of plots)</p>
+<div class="section" id="no">
+<h2>No<a class="headerlink" href="#no" title="Permalink to this headline">¶</a></h2>
+<p>The folder no contains participants where the alignment has been visually identified as substandard. The following reasons are given for this placement. Some participants who belong to those reasons are given underneath. Although often it is not mutually exclusive.</p>
+<p>Total: 30</p>
+<p>Percentage: 14.2%</p>
+<ol class="simple">
+<li><p>Multiple large peaks of model predictions where the differences between the max values are not very big.</p>
+<ul class="simple">
+<li><p>MD04_4, MD13_4,  ME04_6, AT10_2, NG06_6, DS97_2, DS12_2</p></li>
+</ul>
+</li>
+<li><p>Lowest point of the BS signal is very far from the tap</p>
+<ul class="simple">
+<li><p>AG02_2, AT04_8, AT10_2, TT08_6, TT08_4</p></li>
+</ul>
+</li>
+<li><p>BS signal looks very atypical (has many highs and lows) <em>and</em> the model signals also look atypical (atypical for the model is many large predictions and a lot of noise in the signal or no clear peak)</p>
+<ul class="simple">
+<li><p>DB03_8, KE11_8, KN01_6, TT10_4, TT02_10, RW33_2, Rw36_2, RW31_2, JB12_8, JB10_10, MD07_4, KN05_4, DS29_2, DS16_2, NG02_4</p></li>
+</ul>
+</li>
+<li><p>BS signal might be flipped</p>
+<ul class="simple">
+<li><p>DB06_8, ME99_2, ME99_6, DB07_4, TT11_4</p></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="maybe">
+<h2>Maybe<a class="headerlink" href="#maybe" title="Permalink to this headline">¶</a></h2>
+<p>The folder maybe contains participants where it is unclear whether the alignment was successful.</p>
+<p>Total: 21</p>
+<p>Percentage: 11.9%</p>
+<ol class="simple">
+<li><p>No clear peak in model prediction but clear BS signal / unclear where top of model pred is</p>
+<ul class="simple">
+<li><p>NG10_6, DS10_2, DB03_6, AG06_2, NG10_6, KN07_6, MD99_8, NG02_8, TT06_4, TT01_4, TT12_4, TT12_6, KE10_4, KN01_4,</p></li>
+</ul>
+</li>
+<li><p>No clear BS signal but clear peak in model prediction</p>
+<ul class="simple">
+<li><p>NG11_4, ME09_4, MD13_2, JB12_6, DS99_6, NG11_4, NG01_4, RW39_2</p></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="probably">
+<h2>Probably:<a class="headerlink" href="#probably" title="Permalink to this headline">¶</a></h2>
+<p>The folder maybe contains participants where it is not entirely clear, but likely, that the alignment was successful.</p>
+<p>Total: 18</p>
+<p>Percentage: 10.2%</p>
+<ol class="simple">
+<li><p>The BS signal looks like a dampening sine wave but the lowest point of the BS and highest point of the model is around the tap.</p>
+<ul class="simple">
+<li><p>All participants in folder</p></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="yes">
+<h2>Yes:<a class="headerlink" href="#yes" title="Permalink to this headline">¶</a></h2>
+<p>The folder yes contains participants where the alignment was successful.</p>
+<p>Total: 108</p>
+<p>Percentage: 61.0%</p>
+<ol class="simple">
+<li><p>Clear BS signal and model signal. Both the lowest point of the BS and highest point of the model is around the tap.
+note: Most of the time the model prediction is highest slightly before the tap occurs.</p></li>
+</ol>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="distribution-of-model-predictions-around-tap">
+<h1>Distribution of model predictions around tap<a class="headerlink" href="#distribution-of-model-predictions-around-tap" title="Permalink to this headline">¶</a></h1>
+<p><img alt="distribution model and bs data around_tap" src="../reports/figures/distribution.jpg" /></p>
+<p>Position of max value of model prediction is <em><strong>3</strong></em> std away from tap</p>
+<p>Total: 3</p>
+<ul class="simple">
+<li><p>Before tap: TT02_10</p></li>
+<li><p>After tap: KE10_4, MD99_8</p></li>
+</ul>
+<p>Position of min value of BS data <em><strong>3</strong></em> std away from tap</p>
+<p>Total: 7</p>
+<ul class="simple">
+<li><p>Before: AG02_2, TT08_4, TT08_6</p></li>
+<li><p>After: DB03_8, DS12_2, DS29_2, ME04_6</p></li>
+</ul>
+<hr class="docutils" />
+<p>Position of max value of model prediction <em><strong>2</strong></em> std away from tap</p>
+<p>Total: 4</p>
+<ul class="simple">
+<li><p>Before: TT02_10, ED05_6</p></li>
+<li><p>After: KE10_4, MD99_8</p></li>
+</ul>
+<p>Position of min value of BS data <em><strong>2</strong></em> std away from tap</p>
+<p>Total: 8</p>
+<ul class="simple">
+<li><p>Before: AG02_2, TT08_4, TT08_6</p></li>
+<li><p>After: DB03_8, DS12_2, DS29_2, ME04_6, AT04_8</p></li>
+</ul>
+<hr class="docutils" />
+<p>Position of max value of model prediction <em><strong>1</strong></em> std away from tap</p>
+<p>Total: 5</p>
+<ul class="simple">
+<li><p>Before: TT02_10, ED05_6</p></li>
+<li><p>After: KE10_4, MD99_8, MD03_6</p></li>
+</ul>
+<p>Position of min value of BS data <em><strong>1</strong></em> std away from tap</p>
+<p>Total: 12</p>
+<ul class="simple">
+<li><p>Before: AG02_2, TT08_4, TT08_6, JB12_8, NG01_4</p></li>
+<li><p>After: DB03_8, DS12_2, DS29_2, ME04_6, AT04_8, AT10_2, DB06_8</p></li>
+</ul>
+<div class="section" id="all-epoched-model-predictions">
+<h2><img alt="all epoched model predictions" src="../reports/figures/all_mean_epoched_model.jpg" /><a class="headerlink" href="#all-epoched-model-predictions" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="both-visual-and-distribution-analysis-together">
+<h1>Both visual and distribution analysis together<a class="headerlink" href="#both-visual-and-distribution-analysis-together" title="Permalink to this headline">¶</a></h1>
+<p>Total files in <em><strong>No</strong></em>: 30</p>
+<p>Total coinciding with <em><strong>No</strong></em>: 12</p>
+<ul class="simple">
+<li><p>TT02_10, AG02_2, TT08_4, TT08_6, JB12_8, DB03_8, DS12_2, DS29_2, ME04_6, AT04_8, AT10_2, DB06_8</p></li>
+</ul>
+<p>Total in <em><strong>Maybe</strong></em>: 21</p>
+<p>Total coinciding with <em><strong>Maybe</strong></em>: 1</p>
+<ul class="simple">
+<li><p>NG01_4, KE10_4, MD99_8</p></li>
+</ul>
+<p>Total in <em><strong>Probably</strong></em>: 17</p>
+<p>Total coinciding with <em><strong>Probably</strong></em>: 2</p>
+<ul class="simple">
+<li><p>ED05_6,MD03_6</p></li>
+</ul>
+<p>Total in <em><strong>Yes</strong></em>: 108</p>
+<p>Total coinciding with <em><strong>Yes</strong></em>: 0</p>
+<p>Note that all participants excluded because ‘Lowest point of the BS signal is very far from the tap’, were also identified as having the lowest point atleast 1 std away from the tap.</p>
+<ul class="simple">
+<li><p>AG02_2, AT04_8, AT10_2, TT08_6, TT08_4</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="peak-prominance">
+<h1>Peak prominance<a class="headerlink" href="#peak-prominance" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="difference-between-largest-peak-and-mean-peaks-with-threshold-0-10">
+<h2>Difference between largest peak and mean peaks with threshold 0.10<a class="headerlink" href="#difference-between-largest-peak-and-mean-peaks-with-threshold-0-10" title="Permalink to this headline">¶</a></h2>
+<p>Max(prominance) -  mean(prominance) &lt;0.10</p>
+<p>Total: 7</p>
+<ul class="simple">
+<li><p>RW41_2, RW31_2, NG06_6, MD99_8, KN07_8, DS10_2, AG02_2</p></li>
+</ul>
+<p>Total in <em><strong>no</strong></em>: 30</p>
+<p>Coinciding with  <em><strong>no</strong></em>: 2</p>
+<ul class="simple">
+<li><p>AG02_2, RW31_2</p></li>
+</ul>
+<p>Total in  <em><strong>maybe</strong></em>: 21</p>
+<p>Coinciding with <em><strong>maybe</strong></em>: 3</p>
+<ul class="simple">
+<li><p>MD99_8, KN07_8, DS10_2</p></li>
+</ul>
+<p>Total in  <em><strong>probably</strong></em>: 17</p>
+<p>Coinciding with  <em><strong>probably</strong></em>: 3</p>
+<ul class="simple">
+<li><p>RW41_2, NG06_6</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="difference-between-largest-peak-and-mean-peaks-with-threshold-0-15">
+<h2>Difference between largest peak and mean peaks with threshold 0.15<a class="headerlink" href="#difference-between-largest-peak-and-mean-peaks-with-threshold-0-15" title="Permalink to this headline">¶</a></h2>
+<p>Max(prominance) -  mean(prominance) &lt; 0.15</p>
+<p>Total: 24</p>
+<p>Total in <em><strong>no</strong></em>: 30</p>
+<p>Coinciding with  <em><strong>no</strong></em>: 11</p>
+<p>Percentage: 36.7%</p>
+<ul class="simple">
+<li><p>AG02_2, DB07_4, DS16_2, JB10_10, JB12_8, KE11_8, KN05_4, MD07_4, MD13_4, RW31_2, TT10_4</p></li>
+</ul>
+<p>Total in  <em><strong>maybe</strong></em>: 21</p>
+<p>Coinciding with  <em><strong>maybe</strong></em>: 5</p>
+<p>Percentage: 23.8%</p>
+<ul class="simple">
+<li><p>DS10_2, DS99_6, KB07_8, MD99_8, TT06_4</p></li>
+</ul>
+<p>Total in  <em><strong>probably</strong></em>: 17</p>
+<p>Coinciding with  <em><strong>probably</strong></em>: 6</p>
+<p>Percentage: 35.3%</p>
+<ul class="simple">
+<li><p>JB10_4, ME99_6, NG06_6, RW41_2, TT01_6, KN05_6</p></li>
+</ul>
+<p>Total in  <em><strong>yes</strong></em>: 108</p>
+<p>Coinciding with  <em><strong>yes</strong></em>: 4</p>
+<p>Percentage: 3.7%</p>
+<p>DS04_2, DS33_2, JB02_10, TT99_6</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="difference-between-two-largest-peaks">
+<h2>Difference between two largest peaks<a class="headerlink" href="#difference-between-two-largest-peaks" title="Permalink to this headline">¶</a></h2>
+<p>max(prominance) -  max2(prominance) &lt; 0.15</p>
+<p>Total: 48</p>
+<ul class="simple">
+<li><p>AG02_2, AG03_8, AG06_2, AT04_4, AT10_2, DB03_6, DB07_2, DB07_4, DS04_2, DS10_2, DS12_2, DS16_2, DS27_2, DS29_2, DS33_3, DS97_2, DS99_6, JB02_10, JB07_4, JB10_4, JB10_10, JB11_10, JB12_6, JB12_8, KE11_8, KN05_4, KN05_6, KN07_8, MD07_4, MD13_2, MD13_4, MD99_8, ME04_6, ME99_6, NG06_4, NG06_6, RW20_2, RW31_2, RW33_2, RW36_2, RW39_2, RW41_2, RW42_2, TT01_6, TT06_4, TT08_4,  TT10_4, TT99_6</p></li>
+</ul>
+<p>Total in <em><strong>no</strong></em>: 30</p>
+<p>Coinciding with  <em><strong>no</strong></em>: 20</p>
+<p>Coinciding with distribution: 7</p>
+<p>Percentage: 66.7 %</p>
+<ul class="simple">
+<li><p>AG02_2, AT10_2, DB07_4, DS12_2, DS16_2, DS29_2, DS97_2, JB10_10, JB12_8, KE11_8, KN05_4, MD07_4, MD13_4, ME04_6, ME99_6, RW31_2, RW33_2, RW36_2, TT08_4, TT10_4</p></li>
+</ul>
+<p>Distribution and max-max2&lt;0.15 and no: 25</p>
+<p>Percentage 83.3%</p>
+<ul class="simple">
+<li><p>TT02_10, TT08_6, DB03_8, AT04_8, DB06_8, AG02_2, AT10_2, DB07_4, DS12_2, DS16_2, DS29_2, DS97_2, JB10_10, JB12_8, KE11_8, KN05_4, MD07_4, MD13_4, ME04_6, ME99_6, RW31_2, RW33_2, RW36_2, TT08_4, TT10_4</p></li>
+</ul>
+<p>Total in  <em><strong>maybe</strong></em>: 21</p>
+<p>Coinciding with <em><strong>maybe</strong></em>: 11</p>
+<p>Coinciding with distribution: 1</p>
+<p>Percentage: 52.4 %</p>
+<ul class="simple">
+<li><p>AG06_2, DB03_6, DS10_2, DS99_6, JB12_8, KN07_8, MD13_2, MD99_8, NG06_4, RW39_2, TT06_4,</p></li>
+</ul>
+<p>Distribution and max-max2&lt;0.15 and maybe: 13</p>
+<p>Percentage: 61.9%</p>
+<ul class="simple">
+<li><p>NG01_4, KE10_4, AG06_2, DB03_6, DS10_2, DS99_6, JB12_8, KN07_8, MD13_2, MD99_8, NG06_4, RW39_2, TT06_4,</p></li>
+</ul>
+<p>Total in <em><strong>probably</strong></em>: 17</p>
+<p>Coinciding with <em><strong>probably</strong></em>: 8</p>
+<p>Coinciding with distribution: 0</p>
+<p>Percentage: 47.1 %</p>
+<ul class="simple">
+<li><p>DS27_2, JB07_4, JB10_4, KN05_6, NG06_6, RW20_2, RW41_2, TT01_6,</p></li>
+</ul>
+<p>Distribution and max-max2&lt;0.15 and probably: 10</p>
+<p>Percentage: 58.8 %</p>
+<ul class="simple">
+<li><p>ED05_6,MD03_6, DS27_2, JB07_4, JB10_4, KN05_6, NG06_6, RW20_2, RW41_2, TT01_6,</p></li>
+</ul>
+<p>Total in <em><strong>yes</strong></em>: 108</p>
+<p>Coinciding with <em><strong>yes</strong></em>: 9</p>
+<p>Percentage: 8.3%</p>
+<ul class="simple">
+<li><p>AG03_8, AT04_4, DB07_2, DS04_2, DS33_3, JB02_10, JB11_10, RW42_2, TT99_6</p></li>
+</ul>
+<hr class="docutils" />
+<p>max(minmaxnorm()) -  max2(minmaxnorm()) &lt; 0.25</p>
+<p>Total: 21</p>
+<ul class="simple">
+<li><p>AG02_2, AG03_8, AG06_2, AT10_2, DB03_6, DB07_4, DS12_2, DS16_2, DS27_2, DS19_2, DS33_2, DS97_2, JB07_4, JB10_4, KE11_8, KN07_8, MD99_8, ME04_6, TT08_4, TT08_6, TT99_6</p></li>
+</ul>
+<p>Total in <em><strong>no</strong></em>: 30</p>
+<p>Coinciding with <em><strong>no</strong></em>: 10</p>
+<p>Percentage: 33.3%</p>
+<ul class="simple">
+<li><p>AG02_2, AT10_2, DB07_4,  DS12_2, DS16_2, DS97_2, KE11_8, ME04_6,  TT08_4, TT08_6,</p></li>
+</ul>
+<p>Total in  <em><strong>maybe</strong></em>: 21</p>
+<p>Coinciding with <em><strong>maybe</strong></em>: 4</p>
+<p>Percentage: 19 %</p>
+<ul class="simple">
+<li><p>AG06_2, DB03_6, KN07_8, MD99_8,</p></li>
+</ul>
+<p>Total in <em><strong>probably</strong></em>: 17</p>
+<p>Coinciding with <em><strong>probably</strong></em>: 3</p>
+<p>Percentage:  17 %</p>
+<ul class="simple">
+<li><p>DS27_2, JB07_4, JB10_4</p></li>
+</ul>
+<p>Total in <em><strong>yes</strong></em>: 108</p>
+<p>Coinciding with <em><strong>yes</strong></em>: 4</p>
+<p>Percentage: 3.7 %</p>
+<ul class="simple">
+<li><p>AG03_8, DS19_2, DS33_2, TT99_6</p></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Participant selection based on ‘successful’ alignment</a><ul>
+<li><a class="reference internal" href="#no">No</a></li>
+<li><a class="reference internal" href="#maybe">Maybe</a></li>
+<li><a class="reference internal" href="#probably">Probably:</a></li>
+<li><a class="reference internal" href="#yes">Yes:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#distribution-of-model-predictions-around-tap">Distribution of model predictions around tap</a><ul>
+<li><a class="reference internal" href="#all-epoched-model-predictions"></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#both-visual-and-distribution-analysis-together">Both visual and distribution analysis together</a></li>
+<li><a class="reference internal" href="#peak-prominance">Peak prominance</a><ul>
+<li><a class="reference internal" href="#difference-between-largest-peak-and-mean-peaks-with-threshold-0-10">Difference between largest peak and mean peaks with threshold 0.10</a></li>
+<li><a class="reference internal" href="#difference-between-largest-peak-and-mean-peaks-with-threshold-0-15">Difference between largest peak and mean peaks with threshold 0.15</a></li>
+<li><a class="reference internal" href="#difference-between-two-largest-peaks">Difference between two largest peaks</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/participant_selection_based_on_alignment.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Participant selection based on ‘successful’ alignment</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,434 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data alignment: Bendsensor to Forcesensor &#8212; Non attribute movement and EEG 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Data alignment: Bendsensor to Forcesensor</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="data-alignment-bendsensor-to-forcesensor">
+<h1>Data alignment: Bendsensor to Forcesensor<a class="headerlink" href="#data-alignment-bendsensor-to-forcesensor" title="Permalink to this headline">¶</a></h1>
+<p><strong>Deprecated : None of these models were used in the final version. To see the final model code click <a class="reference external" href="../src/alignment/moving_averages">here</a>. For the final model documentation click <a class="reference internal" href="moving_averages.html"><span class="doc">here</span></a>.</strong></p>
+<p>To achieve alignment of Bendsensor(BS) and Forcesensor(FS) data, a Bidirectional Long short-term memory (BiLSTM) is trained. This documentation explains the alignment process.</p>
+<p>During the measurements of the data, the participants alternated between using their smartphone to collect taps, and using a ‘box’ which measured FS data. The BS measurements were collected throughout the whole measurement process. Thus, for each participant, the data had to be separated, because only the sections which contained BS and FS data were used during training.</p>
+<p>Four models were trained with different features. The first model contained moving averages of the BS data (to see this model go to the moving_averages folder). This is refered to as the MA model. The stft model contains frequencies. The MA_stft_40 model contains frequencies and moving averages. The data for this model went through a bandpassfilter of range 0 to 40 hz. The MA_stft_10 model contains frequencies and moving averages. The data for this model went through a bandpassfilter of range 0 to 10 hz. The model results are explained under the section ‘Model results’. The data preparation steps for each model are explained below. Not all steps were included in each model this is reported between parenthesis next to the step.</p>
+<p><a class="reference external" href="../src/alignment/stft">Click here for the stft code</a></p>
+</div>
+<div class="section" id="data-preparation">
+<h1>Data preparation<a class="headerlink" href="#data-preparation" title="Permalink to this headline">¶</a></h1>
+<p>The data preparation is performed in Matlab R2019b.</p>
+<div class="section" id="bendsensor">
+<h2>Bendsensor<a class="headerlink" href="#bendsensor" title="Permalink to this headline">¶</a></h2>
+<p>The model input is BS data. The features that are used, are frequencies extracted with short time fourier transform (stft). To retain time information, moving averages are also used as features to the model.</p>
+<p>The data preparation consisted of the following steps:</p>
+<p><strong>Pre-processing</strong></p>
+<ol class="simple">
+<li><p>Raw BS data: EEG.Aligned.BS.Data(:,1). <em>(all models)</em></p></li>
+<li><p>To remove movement irrelevant information from the BS data a bandpass filter is used with a range of 1 to 40 Hz. <em>(all models)</em></p></li>
+<li><p>Performs outlier detection and removal <em>(all models)</em></p></li>
+<li><p>Segments where BS data may have been absent are removed. This is defined as any window of 1000 milliseconds or higher where the sum of the difference between the signals is 0 <em>(all models except MA)</em></p></li>
+<li><p>To remove sign information from the data and make it more stable, the root mean square (RMS) is calculated, using a rolling window technique. This ensures no data is lost. The rolling window size for the RMS is 10. Towards the end a shrinking window size is used. <em>(all models except MA)</em></p></li>
+</ol>
+<p><strong>STFT</strong> <em>(all models except MA)</em></p>
+<ol class="simple">
+<li><p>Zero padding is added to the data, as to not lose information during the stft.</p></li>
+<li><p>Frequencies are extracted with stft. A hanning window size of 1024 and frame size of 1024 is used. Hopsize of 512 (50%). The sampling frequency is 1000 Hz.</p></li>
+<li><p>Frequencies above 40 Hz are removed as these were filtered out already with the bandpass filter. Remove frequencies below 0 Hz. <em>(for stft_ma_10 frequencies above 10 Hz were removed)</em></p></li>
+<li><p>Complex numbers are transformed by taking the absolute(x)^2 where x is the STFT output.</p></li>
+<li><p>STFT output is normalized across the time domain.</p></li>
+</ol>
+<p>The output shape of the stft is now:</p>
+<ul class="simple">
+<li><p>number of frames by filtered frequency bins.</p></li>
+<li><p>number of frames by 42</p></li>
+</ul>
+<p><strong>Moving averages</strong> <em>(Only applicable for MA, STFT_MA_10 and STFT_MA_40)</em></p>
+<ol class="simple">
+<li><p>BS data is reshaped into number of frames x hopsize. This is done in order to take the same time windows used during the stft and calculate the moving averages on each of these time windows. The number of frames is calculated as:
+<code class="docutils literal notranslate"><span class="pre">((Number</span> <span class="pre">of</span> <span class="pre">BS</span> <span class="pre">samples</span> <span class="pre">-</span> <span class="pre">frame</span> <span class="pre">size)</span> <span class="pre">/</span> <span class="pre">hopsize)+</span> <span class="pre">1.</span> </code><em>(STFT_MA_10 and STFT_MA_40)</em></p></li>
+<li><p>Calculate the moving average over each time window, where each mean is calculated over a sliding window of length k. For the first calculation k is 10. Shrink endpoints of moving averages (STFT_MA_10 and STFT_MA_40, for MA the time window was the whole BS data set)</p></li>
+<li><p>The moving averages are added as features. <em>(MA, STFT_MA_10 and STFT_MA_40)</em></p></li>
+<li><p>Repeat step 2 and 3, i times. k grows in steps of 10. <em>(For MA i is 99. For STFT_MA_10 and STFT_MA_40 i is 10, this means each frame contains 42 frequencies and 10 moving averages windows of size 512.)</em></p></li>
+</ol>
+<p>The final STFT_MA_10 and STFT_MA_40 output will have a shape of:</p>
+<ul class="simple">
+<li><p>frames by 42 + 512 x 10</p></li>
+<li><p>frames by 5162)</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="forcesensor">
+<h1>Forcesensor<a class="headerlink" href="#forcesensor" title="Permalink to this headline">¶</a></h1>
+<p>The model output is FS data.</p>
+<p><strong>Pre-processing</strong></p>
+<ol class="simple">
+<li><p>Raw FS data: EEG.Aligned.BS.Data(:,2)  <em>(all models)</em></p></li>
+<li><p>No movement pressure in the FS data is shown as values ranging from -0.8 to -1. As no pressure is always the same, all these values were transformed to one common value which is -1. <em>(all models)</em></p></li>
+<li><p>The FS contained noise. These are seen as fast spikes smaller than 5 ms. These spikes are too fast to be real movements and were thus set as no movement (-1). <em>(all models)</em></p></li>
+<li><p>Sampling rate of the FS is 1000 Hz. <em>(all models)</em></p></li>
+<li><p>The FS is reshaped into number of frames x hopsize. This is done in order to map the same time windows used during the stft. <em>(all models, except MA)</em></p></li>
+</ol>
+<p>The data is exported as a h5 file. The structure is :
+/participant_fileNumber/participant_windowNumber/filename_filetype_windowNumber
+As an example for participant DS01 file 1 window 2 the file looks like:
+/DS01_1/DS01_1_win_2/DS01_BS_2</p>
+</div>
+<div class="section" id="model">
+<h1>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h1>
+<p>The model is a simple bidirectional lstm. It was trained in Keras version 2.2.4. This is necessary to be able to import the Keras model into matlab.</p>
+<div class="section" id="ma-model">
+<h2>MA model<a class="headerlink" href="#ma-model" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">timesteps</span><span class="p">,</span><span class="n">num_features</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">64</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mse&#39;</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The model was trained in batches of shape (B,T,F), where B is 10, T is 1000 and F is 100.
+The loss function was mean squared error and the optimizer Adam. Models are trained for 5 epochs.</p>
+</div>
+<div class="section" id="stft-stft-ma-10-stft-ma-40">
+<h2>STFT, STFT_MA_10, STFT_MA_40<a class="headerlink" href="#stft-stft-ma-10-stft-ma-40" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">timesteps</span><span class="p">,</span><span class="n">num_features_bs</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">number_of_fs_features</span><span class="p">))</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mse&#39;</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These models were trained in batches of shape (B,T,F), where B is 10, T is 1 and F is 5162.
+The loss function was mean squared error and the optimizer Adam. Models are trained for 5 epochs.</p>
+</div>
+</div>
+<div class="section" id="prediction">
+<h1>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h1>
+<p>The model was imported into matlab for prediction, using the Deep Learning Toolbox.</p>
+<p>The data is prepared for prediction in the same way as it was prepared for training. The prediction is performed in batches.
+The normalization is performed on a smaller window chunk.</p>
+</div>
+<div class="section" id="model-results">
+<h1>Model results<a class="headerlink" href="#model-results" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>MA model:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>model file:</p>
+<ul class="simple">
+<li><p>model_version2_2_4A.json</p></li>
+</ul>
+<p>weights file:</p>
+<ul class="simple">
+<li><p>model_version2_2_4A_weights.h5</p></li>
+</ul>
+<p>Training loss 0.1097 – Val loss 0.0877 – Test loss 0.1387</p>
+</div>
+<div class="section" id="stft">
+<h2>STFT:<a class="headerlink" href="#stft" title="Permalink to this headline">¶</a></h2>
+<p>Stft model 40 Hz bandpass filter</p>
+<p>model file:</p>
+<ul class="simple">
+<li><p>stft.json</p></li>
+</ul>
+<p>weights file:</p>
+<ul class="simple">
+<li><p>stft_weights.h5</p></li>
+</ul>
+<p>Training loss : 0.1128 – Val loss: 0.0931 – Test loss</p>
+</div>
+<div class="section" id="stft-ma-40">
+<h2>STFT_MA_40<a class="headerlink" href="#stft-ma-40" title="Permalink to this headline">¶</a></h2>
+<p>Stft moving averages model 10 Hz bandpass filter</p>
+<p>model file:</p>
+<ul class="simple">
+<li><p>stft_MA_40.json</p></li>
+</ul>
+<p>weights file:</p>
+<ul class="simple">
+<li><p>stft_MA_40_weights.h5</p></li>
+</ul>
+<p>Training loss : 0.1112 – Val loss 0.0881 – Test loss</p>
+</div>
+<div class="section" id="stft-ma-10">
+<h2>STFT_MA_10<a class="headerlink" href="#stft-ma-10" title="Permalink to this headline">¶</a></h2>
+<p>Stft moving averages model 10 Hz bandpass filter</p>
+<p>model file:</p>
+<ul class="simple">
+<li><p>stft_MA_10.json</p></li>
+</ul>
+<p>weights file:</p>
+<ul class="simple">
+<li><p>stft_MA_40_weights.h5</p></li>
+</ul>
+<p>Training loss : 0.1104 – Val loss : 0.0940 – Test loss</p>
+</div>
+</div>
+<div class="section" id="directory-structure">
+<h1>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+--</span> <span class="n">README</span><span class="o">.</span><span class="n">md</span>
+<span class="o">+--</span> <span class="n">moving_averages</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">features</span> <span class="o">-&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">the</span> <span class="n">features</span> <span class="k">for</span> <span class="n">training</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">create_hdf</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">creates</span> <span class="n">the</span> <span class="n">h5</span> <span class="n">data</span> <span class="n">file</span> <span class="k">for</span> <span class="n">training</span> <span class="n">the</span> <span class="n">STFT</span><span class="p">,</span> <span class="n">STFT_MA</span> <span class="n">models</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">gen_freq_data</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">generates</span> <span class="n">data</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">or</span> <span class="n">training</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">predict</span>  <span class="o">-&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">predict</span> <span class="n">the</span> <span class="n">results</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">predict_stft</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">performs</span> <span class="n">model</span> <span class="n">predictions</span> <span class="k">for</span> <span class="n">the</span> <span class="n">stft</span> <span class="n">models</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">main_lstm</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">calls</span> <span class="nb">all</span> <span class="n">functions</span> <span class="k">for</span> <span class="n">prediction</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">training</span> <span class="o">-&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">train</span> <span class="n">the</span> <span class="n">model</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">lstm_1024</span><span class="o">.</span><span class="n">py</span> <span class="o">--&gt;</span> <span class="n">trains</span> <span class="n">the</span> <span class="n">model</span> <span class="ow">and</span> <span class="n">saves</span> <span class="n">weights</span> <span class="ow">and</span> <span class="n">model</span> <span class="n">structure</span>
+</pre></div>
+</div>
+<p>The stft files are explained further below.</p>
+<div class="section" id="matlab">
+<h2>matlab<a class="headerlink" href="#matlab" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="main-lstm-participant-type-eeg">
+<h3>main_lstm(participant_type, EEG)<a class="headerlink" href="#main-lstm-participant-type-eeg" title="Permalink to this headline">¶</a></h3>
+<p>Main data alignment function. The function calls all other relevant functions to perform prediction.</p>
+<p><strong>Input(s):</strong></p>
+<ul class="simple">
+<li><p>participant_type = Binary, 0 is not a DS participant and 1 is a DS participant</p></li>
+<li><p>EEG = EEG data</p></li>
+<li><p>model_file_path = keras model (h5 or JSON)</p></li>
+<li><p>weights_file_path = keras model weights (h5)</p></li>
+<li><p>bandpass_upper_range = max frequency range used in the bandpass filter</p></li>
+</ul>
+<p><strong>Output(s):</strong></p>
+<ul class="simple">
+<li><p>filtered = preprocessed force sensor data</p></li>
+<li><p>BS = preprocessed bendsensor data</p></li>
+<li><p>model_predictions =  output from lstm</p></li>
+</ul>
+<p><strong>Requires:</strong></p>
+<ul class="simple">
+<li><p>getcleanedbsdata.m</p></li>
+<li><p>preprocess.m</p></li>
+<li><p>predict_stft.m</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="getcleanedbsdata-bsvals-fs-range">
+<h3>getcleanedbsdata(bsvals,fs,range)<a class="headerlink" href="#getcleanedbsdata-bsvals-fs-range" title="Permalink to this headline">¶</a></h3>
+<p>Function to preprocess BS data. Performs, outlier detection, removal and bandpass filtering</p>
+<p><strong>Input(s):</strong></p>
+<ul class="simple">
+<li><p>bsvals: Raw BS data</p></li>
+<li><p>fs: the sampling rate as in 1000 samples per second</p></li>
+<li><p>range: is the frequency range in Hz</p></li>
+</ul>
+<p><strong>Output:</strong></p>
+<ul class="simple">
+<li><p>Filtered BS data</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="preprocess-eeg1">
+<h3>preprocess(EEG1)<a class="headerlink" href="#preprocess-eeg1" title="Permalink to this headline">¶</a></h3>
+<p>Pre-process force sensor data and prepare bendsensor data.</p>
+<p><strong>Input(s):</strong></p>
+<ul class="simple">
+<li><p>EEG1 = EEG data from one participant</p></li>
+<li><p>bandpass_upper_range = max frequency range used in the bandpass filter</p></li>
+</ul>
+<p><strong>Output(s):</strong></p>
+<ul class="simple">
+<li><p>filtered = filtered force sensor data</p></li>
+<li><p>BS = filtered BS dataset</p></li>
+<li><p>base = value when there is no force on the sensor</p></li>
+</ul>
+<p><strong>Requires:</strong></p>
+<ul class="simple">
+<li><p>getcleanedbsdata.m</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="seperate-fs-sets-filtered-bs-base">
+<h3>seperate_FS_sets(filtered, BS, base)<a class="headerlink" href="#seperate-fs-sets-filtered-bs-base" title="Permalink to this headline">¶</a></h3>
+<p>Extracts bendsensor values when force sensor data is present.</p>
+<p><strong>Input(s):</strong></p>
+<ul class="simple">
+<li><p>filtered = filtered force sensor data</p></li>
+<li><p>BS = filtered BS dataset</p></li>
+<li><p>base = value when there is no force on the sensor</p></li>
+</ul>
+<p><strong>Output(s):</strong></p>
+<ul class="simple">
+<li><p>dataset = cell array containing the seperate FS and BS windows</p></li>
+<li><p>base_indices = index where the FS data starts and ends</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="gen-freq-data-eeg-bs-window-fs-window-bandpass-upper-range-ma-model-data-generation">
+<h3>gen_freq_data(EEG,BS_window, FS_window, bandpass_upper_range, ma, model_data_generation)<a class="headerlink" href="#gen-freq-data-eeg-bs-window-fs-window-bandpass-upper-range-ma-model-data-generation" title="Permalink to this headline">¶</a></h3>
+<p>Generates the data for training. Performs rolling window rms, stft, moving averages calculation and normalization.</p>
+<p><strong>Input(s):</strong></p>
+<ul class="simple">
+<li><p>EEG = EEG data from one participant</p></li>
+<li><p>BS_window = Bendsensor data</p></li>
+<li><p>FS_window = Forcesensor data</p></li>
+<li><p>bandpass_upper_range = max frequency range used in the bandpass filter</p></li>
+<li><p>ma = binary 1 if moving averages should be generated and 0 if not</p></li>
+<li><p>model_data_generation = binary 1 if used for prediction and 0 if used for model data generation</p></li>
+</ul>
+<p><strong>Ouput(s):</strong></p>
+<ul class="simple">
+<li><p>reshaped_FS_window: Forcesensor data processed and reshaped into model ready format</p></li>
+<li><p>BS_window_freq_MA: Bensensor data with stft and moving averages features</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="function-create-hdf-path">
+<h3>function create_hdf(path)<a class="headerlink" href="#function-create-hdf-path" title="Permalink to this headline">¶</a></h3>
+<p>Finds every participatant and generate for each, the data for training. Save the training data in h5 file format.</p>
+<p><strong>Input(s):</strong></p>
+<ul class="simple">
+<li><p>path: path where the generated h5 file is to be saved</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="predict-stft-eeg-bs-window-fs-window-bandpass-upper-range-model-file-path-weights-file-path">
+<h3>predict_stft(EEG,BS_window,FS_window,bandpass_upper_range,model_file_path,weights_file_path)<a class="headerlink" href="#predict-stft-eeg-bs-window-fs-window-bandpass-upper-range-model-file-path-weights-file-path" title="Permalink to this headline">¶</a></h3>
+<p>Import keras model, prepares data for prediction, predict model outputs
+<strong>Input(s):</strong></p>
+<ul class="simple">
+<li><p>BS_window = filtered bendsensor data</p></li>
+<li><p>FS_window = filtered forcesensor data</p></li>
+<li><p>bandpass_upper_range = max frequency range used in the bandpass filter</p></li>
+<li><p>model_file_path = keras model (h5 or JSON)</p></li>
+<li><p>weights_file_path = keras model weights (h5)</p></li>
+<li><p>ma = binary 1 if moving averages should be generated and 0 if not</p></li>
+</ul>
+<p><strong>Output(s):</strong></p>
+<ul class="simple">
+<li><p>YPred_reshaped = model output</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="python">
+<h2>python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h2>
+<p>Model code is in lstm_stft.py.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data alignment: Bendsensor to Forcesensor</a></li>
+<li><a class="reference internal" href="#data-preparation">Data preparation</a><ul>
+<li><a class="reference internal" href="#bendsensor">Bendsensor</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#forcesensor">Forcesensor</a></li>
+<li><a class="reference internal" href="#model">Model</a><ul>
+<li><a class="reference internal" href="#ma-model">MA model</a></li>
+<li><a class="reference internal" href="#stft-stft-ma-10-stft-ma-40">STFT, STFT_MA_10, STFT_MA_40</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#prediction">Prediction</a></li>
+<li><a class="reference internal" href="#model-results">Model results</a><ul>
+<li><a class="reference internal" href="#id1">MA model:</a></li>
+<li><a class="reference internal" href="#stft">STFT:</a></li>
+<li><a class="reference internal" href="#stft-ma-40">STFT_MA_40</a></li>
+<li><a class="reference internal" href="#stft-ma-10">STFT_MA_10</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#directory-structure">Directory structure</a><ul>
+<li><a class="reference internal" href="#matlab">matlab</a><ul>
+<li><a class="reference internal" href="#main-lstm-participant-type-eeg">main_lstm(participant_type, EEG)</a></li>
+<li><a class="reference internal" href="#getcleanedbsdata-bsvals-fs-range">getcleanedbsdata(bsvals,fs,range)</a></li>
+<li><a class="reference internal" href="#preprocess-eeg1">preprocess(EEG1)</a></li>
+<li><a class="reference internal" href="#seperate-fs-sets-filtered-bs-base">seperate_FS_sets(filtered, BS, base)</a></li>
+<li><a class="reference internal" href="#gen-freq-data-eeg-bs-window-fs-window-bandpass-upper-range-ma-model-data-generation">gen_freq_data(EEG,BS_window, FS_window, bandpass_upper_range, ma, model_data_generation)</a></li>
+<li><a class="reference internal" href="#function-create-hdf-path">function create_hdf(path)</a></li>
+<li><a class="reference internal" href="#predict-stft-eeg-bs-window-fs-window-bandpass-upper-range-model-file-path-weights-file-path">predict_stft(EEG,BS_window,FS_window,bandpass_upper_range,model_file_path,weights_file_path)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#python">python</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/stft_markdown.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Data alignment: Bendsensor to Forcesensor</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utility functions &#8212; Non attribute movement and EEG 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="EEG analysis" href="EEG_analysis.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="EEG_analysis.html" title="EEG analysis"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Utility functions</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-utils">
+<span id="utility-functions"></span><h1>Utility functions<a class="headerlink" href="#module-utils" title="Permalink to this headline">¶</a></h1>
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.call_func_for_all_participants">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">call_func_for_all_participants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">path</span></em>, <em class="sig-param"><span class="pre">save_path</span></em>, <em class="sig-param"><span class="pre">f</span></em>, <em class="sig-param"><span class="pre">options</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.call_func_for_all_participants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls a function for all the participants (reads the EEG struct of the participant)</p>
+<p><strong>Usage:</strong> [] = call_func_for_all_participants(path,save_path,f, options)</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>path = path to raw data</p></li>
+<li><p>save_path = path to save the results</p></li>
+<li><p>f = function handle of function to be called</p></li>
+<li><p>options.start_idx <strong>optional</strong> double = start index of the loop</p></li>
+<li><p>options.end_idx <strong>optional</strong> double = end index of the loop</p></li>
+<li><p>options.load_eeg <strong>optional</strong> logical = 1 load the eeg struct, 0 does not load the struct</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>outputs from the passed function</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.call_func_for_all_participants_eeg">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">call_func_for_all_participants_eeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">path</span></em>, <em class="sig-param"><span class="pre">save_path</span></em>, <em class="sig-param"><span class="pre">f</span></em>, <em class="sig-param"><span class="pre">options</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.call_func_for_all_participants_eeg" title="Permalink to this definition">¶</a></dt>
+<dd><p>General function that preprocesses the EEG data and calls a function for all the participants</p>
+<p><strong>Usage:</strong> [all_data] = call_func_for_all_participants_eeg(path,save_path,f, options)</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>path = path to raw data</p></li>
+<li><p>save_path = path to save the results</p></li>
+<li><p>f = function handle of function to be called</p></li>
+<li><p>options.start_idx <strong>optional</strong> double = start index of the loop</p></li>
+<li><p>options.end_idx <strong>optional</strong> double = end index of the loop</p></li>
+<li><p>options.save_fig <strong>optional</strong> logical = 1 save individual spectograms, 0 does not save</p></li>
+<li><p>options.event_name_d <strong>optional</strong> cell = delta event(s) to epoch around options are NAMs_d, AMs_d or pt</p></li>
+<li><p>options.event_name_i <strong>optional</strong> cell = integral event(s) to epoch around options are NAMs_i, AMs_i or pt</p></li>
+<li><p>options.epoch_window_ms <strong>optional</strong> cell (1,2) = epoch window in ms (e.g. [-1000 500])</p></li>
+<li><p>options.epoch_window_baseline <strong>optional</strong> cell (1,2) = baseline window in MS (e.g. [-1000 -800])</p></li>
+<li><p>options.seperate <strong>optional</strong> logical = 0 epoch AMs and NAMs together, 1 epoch AMs and NAMs seperately</p></li>
+<li><p>options.cycles <strong>optional</strong> double = [1 0.5] 0 for FFT or array for wavelet transform (See newtimef cycles)</p></li>
+<li><p>options.plot <strong>optional</strong> logical = 1 create diagnostic plots</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>all_data = generated data set (see function passed for more info)</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.getBSdata">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">getBSdata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">BSfolder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.getBSdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>usage [BS,bs_name,attysflag] = getBSdata(BSfolder)
+BS folder -&gt; insert the path of the folder up to the subject code as in ‘C:UsersPost_BoxAG06'
+Output the BSData in struct and the corresponding starttimes 
+BS.triggers contains the voltage values corresponding to synchronization
+TTL pulses
+BS.vals contains the voltage values corresponding to the bendsensor
+recordings with each recording session in a seperate cell. Additional
+coloumns are added to this if there are more connections like forcesensor
+attysflag = true , if atays flag is found</p>
+<p>Arko Ghosh, Leiden University, 15/06/2020</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.get_phone_data">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">get_phone_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">indices</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_phone_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get smartphone data based on different alignment rules</p>
+<p><strong>Usage:</strong> [Phone, Transitions, idx] = get_phone_data(EEG, indices)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG data from one participant</p></li>
+<li><dl class="simple">
+<dt>indices =</dt><dd><ul>
+<li><p>If 0 use uncorrected phone indices</p></li>
+<li><p>If 1 use corrected phone indices</p></li>
+<li><p>If 2 use model corrected phone indices</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>Phone =</p></li>
+<li><p>Transitions =</p></li>
+<li><p>idx =</p></li>
+</ul>
+</dd>
+</dl>
+<p>Arko Ghosh, Leiden University</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.getepocheddata">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">getepocheddata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">Data</span></em>, <em class="sig-param"><span class="pre">triggersample</span></em>, <em class="sig-param"><span class="pre">SampleRange</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.getepocheddata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usage: [epochedvals] = getepocheddata(Data, triggersample, Sample Range)</p>
+<dl class="simple">
+<dt>Input(s)</dt><dd><ul class="simple">
+<li><p>Data –&gt; Samples as in timeseries</p></li>
+<li><p>triggersample —&gt; The samples containing trigger as in cell number of T.</p></li>
+<li><p>Sample range —-&gt; [-100 100], takes 100 samples before and 100 after.</p></li>
+</ul>
+</dd>
+<dt>Output(s)</dt><dd><ul class="simple">
+<li><p>epocedvals —-&gt; The values before and after the trigger</p></li>
+</ul>
+</dd>
+</dl>
+<p>Arko Ghosh, Leiden University, 28/05/2019</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.importfile_dateBS">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">importfile_dateBS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">filename</span></em>, <em class="sig-param"><span class="pre">startRow</span></em>, <em class="sig-param"><span class="pre">endRow</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.importfile_dateBS" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>IMPORTFILE Import numeric data from a text file as a matrix.</dt><dd><p>AG03EEG11 = IMPORTFILE(FILENAME) Reads data from text file FILENAME for
+the default selection.</p>
+<p>AG03EEG11 = IMPORTFILE(FILENAME, STARTROW, ENDROW) Reads data from rows
+STARTROW through ENDROW of text file FILENAME.</p>
+</dd>
+<dt>Example:</dt><dd><p>AG03EEG11 = importfile(‘AG_03_EEG_1_1’, 2, 2);</p>
+<blockquote>
+<div><p>See also TEXTSCAN.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.mergeStructs">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">mergeStructs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">struct_a</span></em>, <em class="sig-param"><span class="pre">struct_b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.mergeStructs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge two structs</p>
+<p><strong>Usage</strong>: [merged_struct] = mergeStructs(struct_a,struct_b)</p>
+<dl class="simple">
+<dt>Input(s): </dt><dd><ul class="simple">
+<li><p>struct_a: Struct to merge</p></li>
+<li><p>struct_b: Struct to merge</p></li>
+</ul>
+</dd>
+<dt>Output(s): </dt><dd><ul class="simple">
+<li><p>merged_struct: Merged Struct</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.nanzscore">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">nanzscore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.nanzscore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usage: [result] = nanzscore(x)</p>
+<p>Calculates the zscore ignoring NANs</p>
+<p>Author: Enea Ceolini</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="utils.remove_inactive_bs">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">remove_inactive_bs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data1</span></em>, <em class="sig-param"><span class="pre">data2</span></em>, <em class="sig-param"><span class="pre">window_of_inactivity</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.remove_inactive_bs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes segments where BS data may have been absent.
+Inactive  BS data is defined as any sequence of x milliseconds or higher where the sum of the difference between the signals is 0.</p>
+<p><strong>Usage:</strong> [data1, data2, inactive] = remove_inactive_bs(data1, data2, window_of_inactivity)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>data1 = Data set that contains inactive sequences.</p></li>
+<li><p>data2 = Data set of equal length to data1, whose inactive sequences are also to be removed</p></li>
+<li><p>window_of_inactivity = integer of size x representing the size of inactive sequences</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>data1 = dataset 1 without inactive sections</p></li>
+<li><p>data2 = dataset 2 without inactive sections</p></li>
+<li><p>inactive = boolean array with the points that are inactive as 0 and active as 1 or indices of inactive points</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="EEG_analysis.html"
+                        title="previous chapter">EEG analysis</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="EEG_analysis.html" title="EEG analysis"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Utility functions</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

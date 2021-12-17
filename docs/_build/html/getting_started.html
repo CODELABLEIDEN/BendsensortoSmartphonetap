@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Startup guide &#8212; Non attribute movement and EEG 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Startup guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="startup-guide">
+<h1>Startup guide<a class="headerlink" href="#startup-guide" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>This project uses python for model training and matlab for the rest of the analysis.
+If you want to use the pre-trained models skip all python related installations.</p>
+<div class="section" id="matlab-startup">
+<h2>Matlab startup<a class="headerlink" href="#matlab-startup" title="Permalink to this headline">¶</a></h2>
+<p>Install matlab <a class="reference external" href="https://nl.mathworks.com/products/new_products/release2019b.html">R2019b</a>
+Install the following toolboxes:</p>
+<div class="section" id="matlab-external-toolboxes">
+<h3>Matlab external toolboxes<a class="headerlink" href="#matlab-external-toolboxes" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://sccn.ucsd.edu/eeglab/ressources.php">EEGLAB 2020</a>
+<a class="reference external" href="https://github.com/mattpontifex/icablinkmetrics">icablinkmetrics</a>
+<a class="reference external" href="https://github.com/LIMO-EEG-Toolbox/limo_tools">LIMO EEG</a></p>
+<p><strong>Additional Matlab toolboxes:</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://nl.mathworks.com/products/deep%5Elearning.html">Deep Learning Toolbox</a></p></li>
+<li><p><a class="reference external" href="https://nl.mathworks.com/products/statistics.html">Statistics Toolbox</a></p></li>
+<li><p><a class="reference external" href="https://nl.mathworks.com/products/curvefitting.html">Curve Fitting Toolbox</a></p></li>
+<li><p><a class="reference external" href="https://www.mathworks.com/products/signal.html">Signal Processing Toolbox</a></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="python-startup">
+<h2>Python startup<a class="headerlink" href="#python-startup" title="Permalink to this headline">¶</a></h2>
+<p>The project uses <a class="reference external" href="https://www.python.org/downloads/release/python-360/">python3.6</a>.</p>
+<div class="section" id="startup-via-linux">
+<h3>Startup via linux<a class="headerlink" href="#startup-via-linux" title="Permalink to this headline">¶</a></h3>
+<p>Install anaconda or miniconda</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chmod</span> <span class="n">u</span><span class="o">+</span><span class="n">x</span> <span class="o">~/</span><span class="n">Non_attribute_movements_and_EEG</span><span class="o">/</span><span class="n">get_started</span><span class="o">.</span><span class="n">sh</span>
+<span class="o">./</span><span class="n">get_started</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="startup-via-windows">
+<h3>Startup via Windows<a class="headerlink" href="#startup-via-windows" title="Permalink to this headline">¶</a></h3>
+<p>Install anaconda or miniconda and run the following commands to download the necessary requirements</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">non_attribute_movement_and_EEG</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.6</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">non_attribute_movement_and_EEG</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="n">pandas</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">anaconda</span> <span class="n">keras</span><span class="o">-</span><span class="n">gpu</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="n">matplotlib</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="alternative-startup">
+<h3>Alternative Startup<a class="headerlink" href="#alternative-startup" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Although this may end up with dependency errors to be fixed.</p>
+</div>
+</div>
+</div>
+<div class="section" id="alignment-overview">
+<h1>Alignment Overview<a class="headerlink" href="#alignment-overview" title="Permalink to this headline">¶</a></h1>
+<p>This is a quick overview of the alignment model. For the actual details on the model see: <a class="reference external" href="#">moving_averages_documentation</a><strong>TODO</strong></p>
+<div class="section" id="model-training">
+<h2>Model training<a class="headerlink" href="#model-training" title="Permalink to this headline">¶</a></h2>
+<p>The data preparation for training is done in Matlab. The alignment model is trained in python.</p>
+<ol class="simple">
+<li><p>Prepare the raw data for training and save as h5 file.
+An existing h5 file can be downloaded at. <strong>TODO</strong></p></li>
+<li><p>Activate the conda environment ‘non_attribute_movement_and_EEG’ (See installation for more details).</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">non_attribute_movement_and_EEG</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Run the lstm_MA.py script</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">~/</span><span class="n">Non_attribute_movement_and_EEG</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">alignment</span><span class="o">/</span><span class="n">training</span><span class="o">/</span><span class="n">lstm_MA</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>You will be prompted to input the path to the h5 file prepared in step 1. Type the path and press enter.</p></li>
+<li><p>The trained model is saved in <strong>‘~/Non_attribute_movement_and_EEG/models’.</strong> Three files are generated:</p>
+<ul class="simple">
+<li><p>Checkpoint file named: <strong>MA_{day_month_year_hour_minute_second}.hd5</strong></p></li>
+<li><p>JSON file with saved model architrecture: <strong>MA_{day_month_year_hour_minute_second}.json</strong></p></li>
+<li><p>Trained model weights: <strong>MA_weights_{day_month_year_hour_minute_second}.h5</strong></p></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="using-pre-trained-alignment-model">
+<h2>Using pre-trained alignment model<a class="headerlink" href="#using-pre-trained-alignment-model" title="Permalink to this headline">¶</a></h2>
+<p>The pretrained model weight files can be downloaded at: <strong>TODO</strong>
+The model can be imported into matlab or python for prediction. In this project it has been implemented via matlab. However, the weights file can be imported via python and the prediction performed there since it is a keras model.</p>
+<div class="section" id="predicting-via-matlab">
+<h3>Predicting via Matlab<a class="headerlink" href="#predicting-via-matlab" title="Permalink to this headline">¶</a></h3>
+<p><strong>TODO</strong></p>
+</div>
+</div>
+<div class="section" id="accessing-model-predictions">
+<h2>Accessing model predictions<a class="headerlink" href="#accessing-model-predictions" title="Permalink to this headline">¶</a></h2>
+<p>The prediction has already been performed for all the participants and saved in the EEG struct in the following location:</p>
+<ul class="simple">
+<li><p>EEG.Aligned.BS.model</p></li>
+</ul>
+</div>
+<div class="section" id="using-the-aligned-bs-data">
+<h2>Using the aligned BS data<a class="headerlink" href="#using-the-aligned-bs-data" title="Permalink to this headline">¶</a></h2>
+<p>The actual alignment is performed through the decision tree function.
+See more details at:</p>
+</div>
+</div>
+<div class="section" id="bendsensor-to-tap-model-overview">
+<h1>Bendsensor to tap model overview<a class="headerlink" href="#bendsensor-to-tap-model-overview" title="Permalink to this headline">¶</a></h1>
+<p>First step is to activate the environment.
+Activate the conda environment ‘non_attribute_movement_and_EEG’ (See installation for more details).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">non_attribute_movement_and_EEG</span>
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h2>Model training<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The data preparation for training is done in Matlab. The bendsensor to tap model is trained in python.</p>
+<ol class="simple">
+<li><p>Prepare the raw data for training and save as h5 file.
+An existing h5 file can be downloaded at. <strong>TODO</strong></p></li>
+<li><p>Run the lstm_MA.py script</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">~/</span><span class="n">Non_attribute_movement_and_EEG</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">bs_to_tap</span><span class="o">/</span><span class="n">training</span><span class="o">/</span><span class="n">bs_to_tap</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<ol>
+<li><p>You will be prompted to input the path to the h5 file prepared in step 1. Type the path and press enter.</p></li>
+<li><p>The trained models are saved in <em>‘~/Non_attribute_movement_and_EEG/models/bs_to_tap’.</em>. A folder is generated for every participant. The folder contains many different files:
+Most importantly:</p>
+<ul class="simple">
+<li><p>The trained model weights for the delta model : <em>{participant name}_deltas.h5</em></p></li>
+<li><p>JSON file with saved architrecture for delta model : <em>{participant name}_deltas.h5</em></p></li>
+<li><p>The trained model weights for the integral model : <em>{participant name}_integrals.h5</em></p></li>
+<li><p>JSON file with saved architrecture for integral model : <em>{participant name}_integrals.h5</em></p></li>
+</ul>
+<p>Additional model results:</p>
+<ul class="simple">
+<li><p>Checkpoint files for both delta and integral models</p></li>
+<li><p>Delta and integral model history: {participant name}_{deltas or integrals}_history.csv_</p></li>
+<li><p>PNG Image with 3 subplots: <em>{participant name}_{deltas or integrals}_loss_&amp;_positives.png</em>
+i. model loss and validation loss
+ii. model true and false positive
+iii. validation true and false positives.</p></li>
+<li><p>PNG Image with 4 subplots: <em>{participant name}_{deltas or integrals}_negatives.png</em>
+i. model true negatives
+ii. model false negatives
+iii. validation true negatives
+iiii. validation false negatives</p></li>
+</ul>
+<p>For each test file 3 images:</p>
+<ul class="simple">
+<li><p>Precision recall curve: {participant name}_{deltas or integrals}_{test number}_pr_test.png</p></li>
+<li><p>ROC curve: {participant name}_{deltas or integrals}_{test number}_roc_test.png</p></li>
+<li><p>Model predictions and true taps {participant name}_{deltas or integrals}_{test number}_test_predictions.png</p></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="model-prediction">
+<h2>Model prediction<a class="headerlink" href="#model-prediction" title="Permalink to this headline">¶</a></h2>
+<p>To use the trained model weights, generate predictions with your data.</p>
+<ol class="simple">
+<li><p>Prepare the raw data for training and save as h5 file.
+An existing h5 file can be downloaded at. <strong>TODO</strong>.
+Note this file is the same file as generated at step 1 from model training. However, if you want to predict on another data set the data has to be prepared in the same way as it was for training.</p></li>
+<li><p>Run the python script to generate an h5 file with the predictions saved</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">~/</span><span class="n">Non_attribute_movement_and_EEG</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">bs_to_tap</span><span class="o">/</span><span class="n">training</span><span class="o">/</span><span class="n">bs_to_tap</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>This file contains the following items for each participant and for each feature</p>
+<ul class="simple">
+<li><p>Model predictions: {participant name}\ {deltas or integrals}\yhat_reshaped</p></li>
+<li><p>Thresholds: {participant name}\ {deltas or integrals}\thresholds</p></li>
+<li><p>F2 scores: {participant name}\ {deltas or integrals}\f2_scores</p></li>
+<li><p>Highest F2 score: {participant name}\ {deltas or integrals}\best_f2_scores</p></li>
+<li><p>Optimal threshold for the highest F2 score: {participant name}\ {deltas or integrals}\optimal_threshold</p></li>
+<li><p>Bendsensor data: {participant name}\ {deltas or integrals}\bs_array_std</p></li>
+<li><p>Phone taps: {participant name}\ {deltas or integrals}\fs_array_std</p></li>
+</ul>
+<p><strong>TODO</strong> Insert example image</p>
+<ol class="simple">
+<li><p>(Optional) Save model predictions inside EEG struct</p></li>
+</ol>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% matlab</span>
+<span class="c">% Path to raw data</span>
+<span class="n">raw_data_path</span> <span class="p">=</span> <span class="s">&#39;/media/Storage/Common_Data_Storage/EEG/Feb_2018_2020_RUSHMA_ProcessedEEG&#39;</span><span class="p">;</span>
+<span class="c">% Path to location to save the EEG structs</span>
+<span class="n">save_path_upper</span> <span class="p">=</span> <span class="s">&#39;/media/Storage/User_Specific_Data_Storage/ruchella/Oct_2021_BS_to_tap_classification_EEG&#39;</span><span class="p">;</span>
+<span class="c">% Path to generated h5 file from step 2</span>
+<span class="n">path_saved_predictions</span> <span class="p">=</span> <span class="s">&#39;~/non_attribute_movement_and_EEG/data/bs_to_tap/predicted_file.h5&#39;</span><span class="p">;</span>
+
+<span class="n">paths</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span> <span class="p">=</span> <span class="n">raw_data_path</span><span class="p">;</span> <span class="n">paths</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">}</span> <span class="p">=</span> <span class="n">save_path_upper</span><span class="p">;</span> <span class="n">paths</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">}</span> <span class="p">=</span> <span class="n">path_saved_predictions</span><span class="p">;</span>
+<span class="n">f</span> <span class="p">=</span> <span class="p">@</span><span class="n">save_predictions</span><span class="p">;</span>
+<span class="p">[</span><span class="n">EEG</span><span class="p">]</span> <span class="p">=</span> <span class="n">call_func_for_all_participants</span><span class="p">(</span><span class="n">raw_data_path</span><span class="p">,</span><span class="n">paths</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="s">&#39;load_eeg&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bendsensor-to-tap-results-analysis-generating-figure-1">
+<h2>Bendsensor to tap results analysis (Generating Figure 1)<a class="headerlink" href="#bendsensor-to-tap-results-analysis-generating-figure-1" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li><p>Prepare the necessary data sets:</p></li>
+</ol>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%% Gather all saved bs_to_tap predictions in a cell</span>
+<span class="c">% path to data with bs_to_tap model predictions</span>
+<span class="n">path</span> <span class="p">=</span> <span class="s">&#39;/media/Storage/User_Specific_Data_Storage/ruchella/July_2021_BS_to_tap_classification_EEG&#39;</span><span class="p">;</span>
+<span class="c">% path to save the cell</span>
+<span class="n">save_path</span> <span class="p">=</span> <span class="s">&#39;/home/ruchella/non_attribute_movement_and_EEG/data/bs_to_tap_predictions.mat&#39;</span><span class="p">;</span>
+<span class="p">[</span><span class="n">bs_to_tap_predictions</span><span class="p">]</span> <span class="p">=</span> <span class="n">generate_bs_to_tap_model_preds</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_path</span><span class="p">);</span>
+
+<span class="c">%% Gather all ams and nams in a cell</span>
+<span class="c">% path to data with bs_to_tap model predictions</span>
+<span class="n">path</span> <span class="p">=</span> <span class="s">&#39;/media/Storage/User_Specific_Data_Storage/ruchella/July_2021_BS_to_tap_classification_EEG&#39;</span><span class="p">;</span>
+<span class="c">% path to save the cell</span>
+<span class="n">save_path</span> <span class="p">=</span> <span class="s">&#39;/home/ruchella/non_attribute_movement_and_EEG/data/all_epochs.mat&#39;</span><span class="p">;</span>
+<span class="n">f</span> <span class="p">=</span> <span class="p">@</span><span class="n">generate_all_epochs</span><span class="p">;</span>
+<span class="p">[</span><span class="n">all_data</span><span class="p">]</span> <span class="p">=</span> <span class="n">call_func_for_all_participants_eeg</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">save_path</span><span class="p">,</span><span class="n">f</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>(Optional) Alternatively the data can be downloaded at: <strong>TODO</strong>. If downloaded, load the files.</p></li>
+</ol>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">load</span><span class="p">(</span><span class="s">&#39;~/Non_attribute_movement_and_EEG/data/bs_to_tap_predictions.mat&#39;</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">&#39;~/Non_attribute_movement_and_EEG/data/all_epochs.mat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Find the AMs and NAMs</p></li>
+</ol>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">s_i</span><span class="p">,</span><span class="n">s_d</span><span class="p">,</span><span class="n">taps</span><span class="p">]</span> <span class="p">=</span> <span class="n">get_ams_nam</span><span class="p">(</span><span class="n">bs_to_tap_predictions</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Create the figures</p></li>
+</ol>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Figure 1 - B</span>
+<span class="n">plot_bs_shape_tl_ams_nams</span><span class="p">(</span><span class="n">bs_to_tap_predictions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;s_i&#39;</span><span class="p">,</span> <span class="n">s_i</span><span class="p">,</span> <span class="s">&#39;s_d&#39;</span><span class="p">,</span><span class="n">s_d</span><span class="p">,</span> <span class="s">&#39;taps&#39;</span><span class="p">,</span> <span class="n">taps</span><span class="p">)</span>
+
+<span class="c">% Figure 1 - C</span>
+<span class="n">figure_name</span> <span class="p">=</span> <span class="s">&#39;BS_freq_ams_nams&#39;</span><span class="p">;</span>
+<span class="n">plot_freq_ams_nams</span><span class="p">(</span><span class="n">bs_to_tap_predictions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;s_i&#39;</span><span class="p">,</span> <span class="n">s_i</span><span class="p">,</span> <span class="s">&#39;s_d&#39;</span><span class="p">,</span><span class="n">s_d</span><span class="p">,</span> <span class="s">&#39;taps&#39;</span><span class="p">,</span> <span class="n">taps</span><span class="p">,</span><span class="s">&#39;plot_integrals&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c">% Figure 1 - D</span>
+<span class="n">plot_density_am_nams</span><span class="p">(</span><span class="n">all_epochs</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="c">% Figure 1 - E</span>
+<span class="n">plot_inter_event_intervals</span><span class="p">(</span><span class="n">all_epochs</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c">% Supplementary Figure 1</span>
+<span class="n">figure_name</span> <span class="p">=</span> <span class="s">&#39;BS_pred_ams_nams&#39;</span><span class="p">;</span>
+<span class="n">plot_pred_tl_ams_nams</span><span class="p">(</span><span class="n">bs_to_tap_predictions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;s_i&#39;</span><span class="p">,</span> <span class="n">s_i</span><span class="p">,</span> <span class="s">&#39;s_d&#39;</span><span class="p">,</span><span class="n">s_d</span><span class="p">,</span> <span class="s">&#39;taps&#39;</span><span class="p">,</span> <span class="n">taps</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="eeg-analysis">
+<h1>EEG analysis<a class="headerlink" href="#eeg-analysis" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Startup guide</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#matlab-startup">Matlab startup</a><ul>
+<li><a class="reference internal" href="#matlab-external-toolboxes">Matlab external toolboxes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#python-startup">Python startup</a><ul>
+<li><a class="reference internal" href="#startup-via-linux">Startup via linux</a></li>
+<li><a class="reference internal" href="#startup-via-windows">Startup via Windows</a></li>
+<li><a class="reference internal" href="#alternative-startup">Alternative Startup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#alignment-overview">Alignment Overview</a><ul>
+<li><a class="reference internal" href="#model-training">Model training</a></li>
+<li><a class="reference internal" href="#using-pre-trained-alignment-model">Using pre-trained alignment model</a><ul>
+<li><a class="reference internal" href="#predicting-via-matlab">Predicting via Matlab</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#accessing-model-predictions">Accessing model predictions</a></li>
+<li><a class="reference internal" href="#using-the-aligned-bs-data">Using the aligned BS data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bendsensor-to-tap-model-overview">Bendsensor to tap model overview</a><ul>
+<li><a class="reference internal" href="#id1">Model training</a></li>
+<li><a class="reference internal" href="#model-prediction">Model prediction</a></li>
+<li><a class="reference internal" href="#bendsensor-to-tap-results-analysis-generating-figure-1">Bendsensor to tap results analysis (Generating Figure 1)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#eeg-analysis">EEG analysis</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/getting_started.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Startup guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

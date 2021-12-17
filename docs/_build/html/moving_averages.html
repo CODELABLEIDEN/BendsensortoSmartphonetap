@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data alignment: Moving Averages (MA) &#8212; Non attribute movement and EEG 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Decision tree" href="decision_tree.html" />
+    <link rel="prev" title="Startup guide" href="getting-started.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="decision_tree.html" title="Decision tree"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="getting-started.html" title="Startup guide"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Data alignment: Moving Averages (MA)</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="data-alignment-moving-averages-ma">
+<h1>Data alignment: Moving Averages (MA)<a class="headerlink" href="#data-alignment-moving-averages-ma" title="Permalink to this headline">¶</a></h1>
+<p>To achieve alignment of Bendsensor(BS) and Forcesensor(FS) data, a
+Bidirectional Long short-term memory (BiLSTM) is trained. This
+documentation explains the alignment process using moving averages of
+the BS data as the features.</p>
+<div class="section" id="alignment-problem">
+<h2>Alignment problem<a class="headerlink" href="#alignment-problem" title="Permalink to this headline">¶</a></h2>
+<p>There were misalignments between the datasets. The EEG and BS data were recorded on a Windows computer time clock, and the
+phone data was recorded on an Android phone clock. As a result, there were occasional time drifts in the recording. Potential effects might be missed or found at incorrect places due to misaligned
+data. Therefore, an alignment method was explored to ensure a more accurate mapping between the two datasets.
+The alignment problem is outlined in this figure:</p>
+<img alt="_images/alignment_methods.png" src="_images/alignment_methods.png" />
+<p>The goal was to align the smartphone data to either the BS or EEG data, as these two datasets were aligned. Thus, alignment with the smartphone data via either one will result in alignment with the other. The FS data and BS data were aligned as they were measured using the same clock. The FS was placed in a box that resembled a smartphone. This was done to generate similar movements comparable to SIs when interacting with the FS (Figure A.3). As such, the FS data could be seen as a representation of a smartphone interaction. If a mapping can be learned from BS signals to FS interactions, then it is possible that a similar mapping applies from BS signals to smartphone interactions. To learn this mapping, an ANN (BI-LSTM) was trained with BS and FS data.</p>
+<div class="section" id="data-preparation">
+<h3>Data preparation<a class="headerlink" href="#data-preparation" title="Permalink to this headline">¶</a></h3>
+<p>The data preparation is performed in Matlab R2019b.</p>
+<p>During the measurements of the data, the participants alternated between
+using their smartphone to collect taps, and using a ‘box’ which measured
+FS data. The BS measurements were collected throughout the whole
+measurement process. Thus, for each participant, the data had to be
+separated, because only the sections which contained BS and FS data were
+used during training.</p>
+</div>
+</div>
+<div class="section" id="bendsensor-bs">
+<h2>Bendsensor (BS)<a class="headerlink" href="#bendsensor-bs" title="Permalink to this headline">¶</a></h2>
+<p>The model input is BS data. Moving averages are used as features to the
+model.</p>
+<p>The data preparation consisted of the following steps:</p>
+<p><strong>Pre-processing</strong></p>
+<ol class="arabic simple">
+<li><p>Raw BS data: EEG.Aligned.BS.Data(:,1).</p></li>
+<li><p>To remove movement irrelevant information from the BS data a bandpass filter is used with a range of 1 to 10 Hz.</p></li>
+<li><p>Outlier detection and removal</p></li>
+<li><p>Segments where BS data may have been absent are removed. Missing BS data is defined as any sequence of 1000 milliseconds or higher where the sum of the difference between the signals is 0.</p></li>
+<li><p>Three participants were visually identified to have flipped BS data. This occurs when the BS was attached the wrong way during data collection. These are participant DS02, DS07 and DS22. The BS is flipped before training for these participants</p></li>
+</ol>
+<p><strong>Moving averages</strong></p>
+<ol class="arabic simple">
+<li><p>Calculate the moving average over each time window, where each mean is calculated over a sliding window of length k. For the first calculation k is 10. Shrink endpoints of moving averages</p></li>
+<li><p>Repeat step 2 and 3, i times. k grows in steps of 10.</p></li>
+</ol>
+</div>
+<div class="section" id="forcesensor-fs">
+<h2>Forcesensor (FS)<a class="headerlink" href="#forcesensor-fs" title="Permalink to this headline">¶</a></h2>
+<p>The model output is FS data.</p>
+<p><strong>Pre-processing</strong></p>
+<ol class="arabic simple">
+<li><p>Raw FS data: EEG.Aligned.BS.Data(:,2).</p></li>
+<li><p>No movement pressure in the FS data is shown as values ranging from ^0.8 to ^1. As no pressure is always the same, all these values were transformed to one common value which is ^1.</p></li>
+<li><p>The FS contained noise. These are seen as fast spikes smaller than 5 ms. These spikes are too fast to be real movements and were thus set as no movement(^1).</p></li>
+<li><p>Sampling rate of the FS is 1000 Hz.</p></li>
+</ol>
+<p>The data is exported as a h5 file. The structure is /participant_fileNumber/participant_windowNumber/filename_filetype_windowNumber
+As an example for participant DS01 file 1 window 2 the file looks like: /DS01_1/DS01_1_win_2/DS01_BS_2</p>
+<div class="section" id="model">
+<h3>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h3>
+<p>The model is a simple bidirectional lstm. It was trained in Keras
+version 2.2.4. This is necessary to be able to import the Keras model
+into matlab.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">-</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">-</span><span class="kc">True</span><span class="p">),</span> <span class="n">input_shape</span><span class="o">-</span><span class="p">(</span><span class="n">timesteps</span><span class="p">,</span><span class="n">num_features</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">64</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">-</span><span class="s1">&#39;mse&#39;</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">-</span><span class="s1">&#39;adam&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The model was trained in batches of shape (B,T,F), where B is 10, T is
+1000 and F is 100. The loss function was mean squared error and the
+optimizer Adam. Models are trained for 5 epochs.</p>
+</div>
+<div class="section" id="prediction">
+<h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
+<p>The model was imported into matlab for prediction, using the <a class="reference external" href="https://nl.mathworks.com/products/deep^learning.html">Deep Learning Toolbox</a>.</p>
+<p>The data is prepared for prediction in the same way as it was prepared for training. The prediction is performed in batches.</p>
+</div>
+<div class="section" id="model-results">
+<h3>Model results<a class="headerlink" href="#model-results" title="Permalink to this headline">¶</a></h3>
+<p>Model file:</p>
+<p><a class="reference external" href="../../../models/alignment_models/MA_inverted_full.json">MA_inverted_full.json</a></p>
+<p>Weights file:</p>
+<p><a class="reference external" href="../../../models/alignment_models/MA_inverted_full_weights.h5">MA_inverted_full_weights.h5</a></p>
+<p>Training loss 0.1207 – Validition loss – Test loss</p>
+</div>
+<div class="section" id="directory-structure">
+<h3>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+--</span> <span class="n">Alignment</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">decision_tree</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">decision_peak_prominance</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">One</span> <span class="n">heuristic</span> <span class="n">rule</span> <span class="n">checking</span> <span class="k">for</span> <span class="n">model</span> <span class="n">peak</span> <span class="n">prominance</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">decision_tree_alignment</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">performs</span> <span class="n">the</span> <span class="n">alignment</span> <span class="ow">and</span> <span class="n">ignores</span> <span class="n">participants</span> <span class="n">based</span> <span class="n">on</span> <span class="n">heuristics</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">features</span> <span class="o">--&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">the</span> <span class="n">features</span> <span class="k">for</span> <span class="n">training</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">create_hdf_MA</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">creates</span> <span class="n">the</span> <span class="n">h5</span> <span class="n">data</span> <span class="n">file</span> <span class="k">for</span> <span class="n">training</span> <span class="n">the</span> <span class="n">MA</span> <span class="n">model</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">create_matrix_MA</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">creates</span> <span class="n">the</span> <span class="n">moving</span> <span class="n">averages</span> <span class="n">matrix</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">preprocess</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">preprocess</span> <span class="n">FS</span> <span class="ow">and</span> <span class="n">BS</span> <span class="n">data</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">seperate_FS_sets</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">seperates</span> <span class="n">data</span> <span class="n">into</span> <span class="n">windows</span> <span class="n">where</span> <span class="n">there</span> <span class="ow">is</span> <span class="n">FS</span> <span class="n">data</span> <span class="n">present</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">predict</span>  <span class="o">--&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">predict</span> <span class="n">the</span> <span class="n">results</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">predict_MA</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">performs</span> <span class="n">model</span> <span class="n">predictions</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">main_lstm_MA</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">calls</span> <span class="nb">all</span> <span class="n">functions</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">or</span> <span class="n">data</span> <span class="n">generation</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">training</span> <span class="o">--&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">train</span> <span class="n">the</span> <span class="n">model</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">lstm_MA</span><span class="o">.</span><span class="n">py</span> <span class="o">--&gt;</span> <span class="n">trains</span> <span class="n">the</span> <span class="n">model</span> <span class="ow">and</span> <span class="n">saves</span> <span class="n">weights</span> <span class="ow">and</span> <span class="n">model</span> <span class="n">structure</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">result_plotting</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="o">**</span><span class="n">TODO</span><span class="o">**</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="code">
+<h3>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="module-alignment.features">
+<span id="features"></span><h2>Features<a class="headerlink" href="#module-alignment.features" title="Permalink to this headline">¶</a></h2>
+<dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.features.create_hdf_MA">
+<span class="sig-prename descclassname"><span class="pre">alignment.features.</span></span><span class="sig-name descname"><span class="pre">create_hdf_MA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">inner_loop_idx</span></em>, <em class="sig-param"><span class="pre">participant</span></em>, <em class="sig-param"><span class="pre">save_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.features.create_hdf_MA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create hdf file with data for model training</p>
+<p><strong>Usage:</strong> create_hdf_MA(EEG, inner_loop_idx, participant, save_path)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct</p></li>
+<li><p>inner_loop_idx = index in which to add the data in the h5 file</p></li>
+<li><p>participant = participant folder name and file number (E.g. AGO3_2)</p></li>
+<li><p>save_path = path to save the file with .h5 extention.
+Example: ‘data/alignment_train_data/MA.h5’</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>None - generates a h5 file at the save_path location with the training data</p></li>
+</ul>
+</dd>
+<dt>Requires:</dt><dd><ul class="simple">
+<li><p>seperate_FS_sets.m</p></li>
+<li><p>preprocess.m</p></li>
+<li><p>create_matrix_MA.m</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.features.create_matrix_MA">
+<span class="sig-prename descclassname"><span class="pre">alignment.features.</span></span><span class="sig-name descname"><span class="pre">create_matrix_MA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">BS_window</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.features.create_matrix_MA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create moving averages matrix from BS data</p>
+<p><strong>Usage:</strong> [MA_matrix] = create_matrix_MA(BS_window)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>BS_window = preprocessed BS dataset.</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>MA_matrix = Moving averages matrix, these are the features for training</dt><dd><p>Size: (length BS_window x 100)</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.features.preprocess">
+<span class="sig-prename descclassname"><span class="pre">alignment.features.</span></span><span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">bandpass_upper_range</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.features.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess force sensor data and prepare bendsensor data</p>
+<p><strong>Usage:</strong> [filtered, BS, base] = preprocess(EEG, bandpass_upper_range)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct from one participant</p></li>
+<li><p>bandpass_upper_range = int maximum frequency range used in the bandpass filter</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>filtered = preprocessed forcesensor data</p></li>
+<li><p>BS = preprocessed BS dataset</p></li>
+<li><p>base = value when there is no force on the sensor</p></li>
+</ul>
+</dd>
+<dt>Requires:</dt><dd><ul class="simple">
+<li><p>getcleanedbsdata.m</p></li>
+<li><p>remove_inactive_bs.m</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.features.seperate_FS_sets">
+<span class="sig-prename descclassname"><span class="pre">alignment.features.</span></span><span class="sig-name descname"><span class="pre">seperate_FS_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">filtered</span></em>, <em class="sig-param"><span class="pre">BS</span></em>, <em class="sig-param"><span class="pre">base</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.features.seperate_FS_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts bendsensor values when force sensor data is present</p>
+<p><strong>Usage:</strong> [dataset,base_indices] = seperate_FS_sets(filtered, BS, base)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>filtered = preprocessed force sensor data</p></li>
+<li><p>BS = preprocessed BS dataset</p></li>
+<li><p>base = value when there is no force on the sensor</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>dataset = cell array containing the seperate FS and BS windows</p></li>
+<li><p>base_indices = indexes where the FS data starts and ends</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+</div>
+<div class="section" id="training">
+<h2>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="id1">
+<h2>Prediction<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-alignment.predict"></span><dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.predict.main_lstm_MA">
+<span class="sig-prename descclassname"><span class="pre">alignment.predict.</span></span><span class="sig-name descname"><span class="pre">main_lstm_MA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">model_file_path</span></em>, <em class="sig-param"><span class="pre">weights_file_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.predict.main_lstm_MA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates model predictions</p>
+<p><strong>Usage:</strong> [BS,model_predictions] = main_lstm_MA(EEG, model_file_path, weights_file_path)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG struct m</p></li>
+<li><p>model_file_path = keras model (h5 or JSON)</p></li>
+<li><p>weights_file_path = keras model weights (h5)</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>BS = preprocessed bendsensor data</p></li>
+<li><p>model_predictions =  output from lstm</p></li>
+</ul>
+</dd>
+<dt>Requires:</dt><dd><ul class="simple">
+<li><p>getcleanedbsdata.m</p></li>
+<li><p>predict_MA.m</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><p>main_lstm_MA(EEG, ‘model_version2_2_4A.json’, ‘model_version2_2_4A_weights.h5’);</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.predict.predict_MA">
+<span class="sig-prename descclassname"><span class="pre">alignment.predict.</span></span><span class="sig-name descname"><span class="pre">predict_MA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">BS</span></em>, <em class="sig-param"><span class="pre">net</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.predict.predict_MA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare data for prediction and predict in batches</p>
+<p><strong>Usage:</strong> [model_predictions] = predict_MA(BS,net)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>BS = preprocessed bendsensor data</p></li>
+<li><p>net = keras imported network</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>model_predictions = model output</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-alignment.decision_tree">
+<span id="results-analysis"></span><h2>Results analysis<a class="headerlink" href="#module-alignment.decision_tree" title="Permalink to this headline">¶</a></h2>
+<dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.decision_tree.decision_peak_prominance">
+<span class="sig-prename descclassname"><span class="pre">alignment.decision_tree.</span></span><span class="sig-name descname"><span class="pre">decision_peak_prominance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">epoched_model_predictions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.decision_tree.decision_peak_prominance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Participant selection based on the difference between the aligned largest peak and second largest peak</p>
+<p><strong>Usage:</strong> [simple, differences_bs] = decision_peak_prominance(epoched_model_predictions)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>epoched_model_predictions = epoched model predictions timelocked to aligned taps</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>simple = 1: participant kept , 0 = participant rejected</p></li>
+<li><p>differences_bs = difference between the largest peak and second largest peak</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="alignment.decision_tree.decision_tree_alignment">
+<span class="sig-prename descclassname"><span class="pre">alignment.decision_tree.</span></span><span class="sig-name descname"><span class="pre">decision_tree_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">EEG</span></em>, <em class="sig-param"><span class="pre">BS</span></em>, <em class="sig-param"><span class="pre">create_diagnostic_plot</span></em><span class="sig-paren">)</span><a class="headerlink" href="#alignment.decision_tree.decision_tree_alignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decides when to choose the model based alignment, BS based alignment, or old alignment</p>
+<p><strong>Usage:</strong> [EEG simple] = decision_tree_alignment(EEG, BS, create_diagnostic_plot)</p>
+<dl class="simple">
+<dt>Input(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG data from one participant</p></li>
+<li><p>BS = preprocessed BS dataset</p></li>
+<li><p>create_diagnostic_plot =  bool 1= yes create diagnostic plot, 0 = do not create plot</p></li>
+</ul>
+</dd>
+<dt>Output(s):</dt><dd><ul class="simple">
+<li><p>EEG = EEG data from one participant where EEG.Aligned.Phone.Blind contains corrected alignment rules</p></li>
+<li><p>simple = 1: model based alignment , 0 = no alignment empty field returned</p></li>
+</ul>
+</dd>
+</dl>
+<p>Author: R.M.D. Kock</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data alignment: Moving Averages (MA)</a><ul>
+<li><a class="reference internal" href="#alignment-problem">Alignment problem</a><ul>
+<li><a class="reference internal" href="#data-preparation">Data preparation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bendsensor-bs">Bendsensor (BS)</a></li>
+<li><a class="reference internal" href="#forcesensor-fs">Forcesensor (FS)</a><ul>
+<li><a class="reference internal" href="#model">Model</a></li>
+<li><a class="reference internal" href="#prediction">Prediction</a></li>
+<li><a class="reference internal" href="#model-results">Model results</a></li>
+<li><a class="reference internal" href="#directory-structure">Directory structure</a></li>
+<li><a class="reference internal" href="#code">Code</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-alignment.features">Features</a></li>
+<li><a class="reference internal" href="#training">Training</a></li>
+<li><a class="reference internal" href="#id1">Prediction</a></li>
+<li><a class="reference internal" href="#module-alignment.decision_tree">Results analysis</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="getting-started.html"
+                        title="previous chapter">Startup guide</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="decision_tree.html"
+                        title="next chapter">Decision tree</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/moving_averages.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="decision_tree.html" title="Decision tree"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="getting-started.html" title="Startup guide"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Data alignment: Moving Averages (MA)</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attributable and Non attributable movements identification &#8212; Non attribute movement and EEG 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Attributable and Non attributable movements identification</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="attributable-and-non-attributable-movements-identification">
+<h1>Attributable and Non attributable movements identification<a class="headerlink" href="#attributable-and-non-attributable-movements-identification" title="Permalink to this headline">¶</a></h1>
+<p>Attributable movements (AMs) are movements that result in clear and instantaneous outcomes. Other types of movements cannot be simply attributed to any clear outcome or goal; we refer to them as non-attributable movements (NAMs). This section is on the identification of NAMs and AMS. Furthermore, to understand these movements different parameters are extracted and these are explained in this section as well.</p>
+<p>NAMs and AMs had to be extracted from the continuous <span class="xref std std-doc">bendsensor to tap model</span> predictions. The first step towards this was to threshold the model predictions with the maximum F2 score to exclude noise (See the evaluation section in <span class="xref std std-doc">bendsensor to tap model</span>).</p>
+<p><strong>Attributable movements definition</strong></p>
+<p>AMs were identified, any predicted peak around +/- 100 ms of the smartphone interaction (SI) was considered a prediction of the interaction. 100 ms was chosen because this is the peak width of the model predictions averaged across all participants. Therefore, any prediction of +/- 100 ms around a SI identified an AM.</p>
+<p><strong>Non Attributable movements definition</strong>
+NAMs were identified with a model prediction where there was no SI in the vicinity. This was defined as any peak of a model prediction further than +/- 1000 ms from the interaction. 1000 ms was chosen because the movement to generate an interaction usually occurred within that duration.</p>
+<img alt="figures/figures/ams_nams.svg" src="figures/figures/ams_nams.svg" /><p>We distinguished between AMs and NAMs based on the model predictions of the deltas and those based on the model predictions of the integrals.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Everything is saved in the <a class="reference external" href="https://eeglab.org/tutorials/ConceptsGuide/Data_Structures.html">EEGLAB</a> data format. The data is timelocked around the event and epoched this is then used to identify the neural correlates of these events. For this reason some functions in this section require functions from <span class="xref std std-doc">EEG analysis</span> section. Specifically the EEG preprocessing functions.</p>
+</div>
+<div class="section" id="ams-and-nams-parameters">
+<h2>AMs and NAMs parameters<a class="headerlink" href="#ams-and-nams-parameters" title="Permalink to this headline">¶</a></h2>
+<p>We also calculate a few parameters for each event. The events are either an AM, NAM as identified from the bendsensor to tap model predictions. These predictions are basically continuous values with peaks being the predicted events.</p>
+<ul class="simple">
+<li><p>Maximum peak value: <em>pks</em></p></li>
+<li><p>Distance to the nearest smartphone interaction (tap) after the event: <em>distance_tap_after_event</em></p></li>
+<li><p>Distance to the nearest smartphone interaction (tap) before the event: <em>distance_tap_before_event</em></p></li>
+<li><p>The model prediction value at the location of the tap after the event: <em>pks_after_tap</em></p></li>
+<li><p>The model prediction value at the location of the tap before the event: <em>pks_before_tap</em></p></li>
+<li><p>Distance to the nearest model predicted peak (larger the set threshold of the optimal f2 score) after event: <em>distance_pred_after_event</em></p></li>
+<li><p>Distance to the nearest model predicted peak (larger the set threshold of the optimal f2 score) before the event: <em>distance_pred_before_event</em></p></li>
+<li><p>Maximum peak value after event: <em>pks_pred_after</em></p></li>
+<li><p>Maximum peak value before event: <em>pks_pred_before</em></p></li>
+<li><p>The type of event the nearest model prediction (either AM, NAM or None) <em>types_after_event</em></p></li>
+<li><p>The type of event the nearest model prediction (either AM, NAM or None) <em>types_before_event</em></p></li>
+<li><p>Boolean 1 indicating the type of the event <em>NAMs_i, NAMs_d, AMs_i, AMs_d, pt</em></p></li>
+</ul>
+<img alt="figures/figures/ams_nams_parameter.svg" src="figures/figures/ams_nams_parameter.svg" /><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The smartphone interaction (SI) can also be used as an event in that case it is called <em>pt</em>. The only difference is the <a class="reference external" href="https://eeglab.org/tutorials/ConceptsGuide/Data_Structures.html#eegepoch">eventlatency</a> is at the location of the tap and not the model predicted peak.</p>
+</div>
+</div>
+<div class="section" id="directory-structure">
+<h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+--</span> <span class="n">ams_nams</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">features</span> <span class="o">--&gt;</span> <span class="n">Scripts</span> <span class="n">to</span> <span class="n">find</span> <span class="n">events</span> <span class="p">(</span><span class="n">ams</span><span class="p">,</span> <span class="n">nams</span><span class="p">,</span> <span class="n">smartphone</span> <span class="n">interactions</span><span class="p">(</span><span class="n">pt</span><span class="p">))</span> <span class="ow">and</span> <span class="n">epoch</span> <span class="n">eeg</span> <span class="n">data</span> <span class="n">around</span> <span class="n">them</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">add_events</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">adds</span> <span class="n">events</span> <span class="n">to</span> <span class="n">the</span> <span class="n">eeglab</span> <span class="n">struct</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">calculate_date_differences</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">used</span> <span class="n">to</span> <span class="n">identify</span> <span class="n">second</span> <span class="n">curfew</span> <span class="n">files</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">find_ams_n_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">finds</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">model</span> <span class="n">predictions</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">find_nearest_distances</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">finds</span> <span class="n">nearest</span> <span class="p">(</span><span class="mi">1</span> <span class="n">before</span> <span class="ow">and</span> <span class="mi">1</span> <span class="n">after</span><span class="p">)</span> <span class="n">events</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">participants</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">find_nearest</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">finds</span> <span class="n">nearest</span> <span class="p">(</span><span class="mi">1</span> <span class="n">before</span> <span class="ow">and</span> <span class="mi">1</span> <span class="n">after</span><span class="p">)</span> <span class="n">events</span> <span class="k">for</span> <span class="n">one</span> <span class="n">participant</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">set_parameters</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">calculates</span> <span class="n">other</span> <span class="n">parameters</span> <span class="n">of</span> <span class="n">the</span> <span class="n">event</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span> <span class="n">pred_events</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">this</span> <span class="n">calls</span> <span class="nb">all</span> <span class="n">other</span> <span class="n">functions</span> <span class="ow">and</span> <span class="n">epochs</span> <span class="n">the</span> <span class="n">eeg</span> <span class="n">data</span> <span class="n">around</span> <span class="n">the</span> <span class="n">events</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">result_plotting</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">analyze_bs_to_tap_mod_results</span><span class="o">.</span><span class="n">py</span> <span class="o">--&gt;</span> <span class="n">analyze</span> <span class="n">model</span> <span class="n">predictions</span> <span class="ow">and</span> <span class="n">generated</span> <span class="n">f2</span> <span class="n">scores</span> <span class="n">plot</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">erp_plots</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plots</span> <span class="n">ERP</span> <span class="n">results</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">erp_with_CI</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plots</span> <span class="n">ERP</span> <span class="k">with</span> <span class="n">confidence</span> <span class="n">intervals</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">generate_all_epochs</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">prepares</span> <span class="n">data</span> <span class="k">for</span> <span class="n">generation</span> <span class="n">of</span> <span class="n">figure</span> <span class="n">D</span> <span class="ow">and</span> <span class="n">E</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">generate_bs_to_tap_model_preds</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">prepares</span> <span class="n">data</span> <span class="k">for</span> <span class="n">generation</span> <span class="n">of</span> <span class="n">figure</span> <span class="n">B</span> <span class="ow">and</span> <span class="n">C</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">get_ams_nam</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">get</span> <span class="n">the</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">participant</span> <span class="ow">in</span> <span class="n">right</span> <span class="nb">format</span> <span class="k">for</span> <span class="n">plotting</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_bs_shape_tl_ams_nams</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">average</span> <span class="n">bendsensor</span> <span class="n">timelocked</span> <span class="n">to</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">B</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_density_am_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">nearest</span> <span class="n">events</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">D</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_freq_ams_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">frequencies</span> <span class="n">of</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">C</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_inter_event_intervals</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span> <span class="n">plot</span> <span class="n">inter</span> <span class="n">event</span> <span class="n">intervals</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Figure</span> <span class="mi">1</span> <span class="n">E</span><span class="p">)</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">+--</span>  <span class="n">plot_pred_tl_ams_nams</span><span class="o">.</span><span class="n">m</span> <span class="o">--&gt;</span>  <span class="n">plot</span> <span class="n">model</span> <span class="n">predictions</span> <span class="n">timelocked</span> <span class="n">around</span> <span class="n">ams</span> <span class="ow">and</span> <span class="n">nams</span> <span class="k">for</span> <span class="n">integrals</span> <span class="ow">and</span> <span class="n">deltas</span> <span class="p">(</span><span class="n">Supplementary</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="features">
+<h3>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="result-plotting">
+<h3>Result plotting<a class="headerlink" href="#result-plotting" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Attributable and Non attributable movements identification</a><ul>
+<li><a class="reference internal" href="#ams-and-nams-parameters">AMs and NAMs parameters</a></li>
+<li><a class="reference internal" href="#directory-structure">Directory structure</a></li>
+<li><a class="reference internal" href="#code">Code</a><ul>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#result-plotting">Result plotting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/figures/ams_nams.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../mat-modindex.html" title="MATLAB Module Index"
+             >matlab index</a> |</li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Non attribute movement and EEG 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Attributable and Non attributable movements identification</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
